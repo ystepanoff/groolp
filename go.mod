@@ -1,6 +1,6 @@
 module github.com/ystepanoff/groolp
 
-go 1.23
+go 1.20
 
 require (
 	github.com/fsnotify/fsnotify v1.8.0
