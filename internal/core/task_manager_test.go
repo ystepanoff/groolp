@@ -36,7 +36,7 @@ func TestTaskExecution(t *testing.T) {
 		},
 	}
 
-	tm.Register(task)
+	_ = tm.Register(task)
 
 	if err := tm.Run("execute-task"); err != nil {
 		t.Errorf("Failed to run task: %v", err)
@@ -70,8 +70,8 @@ func TestTaskDependencies(t *testing.T) {
 		},
 	}
 
-	tm.Register(taskA)
-	tm.Register(taskB)
+	_ = tm.Register(taskA)
+	_ = tm.Register(taskB)
 
 	if err := tm.Run("taskB"); err != nil {
 		t.Errorf("Failed to run task with dependencies: %v", err)
@@ -111,8 +111,8 @@ func TestCircularDependencies(t *testing.T) {
 		},
 	}
 
-	tm.Register(taskA)
-	tm.Register(taskB)
+	_ = tm.Register(taskA)
+	_ = tm.Register(taskB)
 
 	if err := tm.Run("taskA"); err == nil {
 		t.Errorf("Expected error for circular dependency, got nil")

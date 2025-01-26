@@ -31,7 +31,7 @@ func main() {
 	taskManager := core.NewTaskManager()
 
 	// Register sample built-in tasks or plugins
-	taskManager.Register(&core.Task{
+	_ = taskManager.Register(&core.Task{
 		Name:        "clean",
 		Description: "Clean the build directory",
 		Action: func() error {
@@ -41,7 +41,7 @@ func main() {
 		},
 	})
 
-	taskManager.Register(&core.Task{
+	_ = taskManager.Register(&core.Task{
 		Name:         "build",
 		Description:  "Build the project",
 		Dependencies: []string{"clean"},
@@ -52,7 +52,7 @@ func main() {
 		},
 	})
 
-	taskManager.Register(&core.Task{
+	_ = taskManager.Register(&core.Task{
 		Name:         "deploy",
 		Description:  "Deploy the project",
 		Dependencies: []string{"build"},
@@ -70,5 +70,7 @@ func main() {
 	}
 
 	rootCmd := cli.Initialize(taskManager)
-	rootCmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		println("Failed to run:", err.Error())
+	}
 }
