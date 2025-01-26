@@ -26,7 +26,7 @@ import (
 
 	"github.com/ystepanoff/groolp/internal/cli"
 	"github.com/ystepanoff/groolp/internal/core"
-	"github.com/ystepanoff/groolp/internal/plugins/hello"
+	"github.com/ystepanoff/groolp/plugins/hello"
 )
 
 func main() {
