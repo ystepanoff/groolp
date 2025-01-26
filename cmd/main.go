@@ -21,8 +21,25 @@ THE SOFTWARE.
 */
 package cmd
 
-import "github.com/ystepanoff/groolp/internal/cli"
+import (
+	"github.com/ystepanoff/groolp/internal/cli"
+	"github.com/ystepanoff/groolp/internal/core"
+)
 
 func main() {
-	cli.Execute()
+	taskManager := core.NewTaskManager()
+
+	// Register built-in tasks or plugins
+	// For now, we'll register a sample task
+	taskManager.Register(&core.Task{
+		Name:        "hello",
+		Description: "Prints Hello, World!",
+		Action: func() error {
+			println("Hello, World!")
+			return nil
+		},
+	})
+
+	rootCmd := cli.Initialize(taskManager)
+	rootCmd.Execute()
 }
