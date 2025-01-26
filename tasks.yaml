@@ -1,0 +1,15 @@
+tasks:
+  clean:
+    description: "Clean the build directory"
+    action: "echo Cleaning build directory..."
+  build:
+    description: "Build the project"
+    dependencies:
+      - clean
+    action: "echo Building the project..."
+  deploy:
+    description: "Deploy the project"
+    dependencies:
+      - build
+    action: "echo Deploying the project..."
+

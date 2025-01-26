@@ -22,6 +22,8 @@ THE SOFTWARE.
 package main
 
 import (
+	"fmt"
+
 	"github.com/ystepanoff/groolp/internal/cli"
 	"github.com/ystepanoff/groolp/internal/core"
 	"github.com/ystepanoff/groolp/internal/plugins/hello"
@@ -29,48 +31,25 @@ import (
 
 func main() {
 	taskManager := core.NewTaskManager()
+	rootCmd := cli.Init(taskManager)
 
-	// Register sample built-in tasks or plugins
-	_ = taskManager.Register(&core.Task{
-		Name:        "clean",
-		Description: "Clean the build directory",
-		Action: func() error {
-			println("Cleaning build directory...")
-			// Implement cleaning logic here
-			return nil
-		},
-	})
+	config, err := cli.InitConfig()
+	if err != nil {
+		fmt.Println("Error loading config file:", err)
+		return
+	}
 
-	_ = taskManager.Register(&core.Task{
-		Name:         "build",
-		Description:  "Build the project",
-		Dependencies: []string{"clean"},
-		Action: func() error {
-			println("Building the project...")
-			// Implement build logic here
-			return nil
-		},
-	})
-
-	_ = taskManager.Register(&core.Task{
-		Name:         "deploy",
-		Description:  "Deploy the project",
-		Dependencies: []string{"build"},
-		Action: func() error {
-			println("Deploying the project...")
-			// Implement deployment logic here
-			return nil
-		},
-	})
+	if err := taskManager.RegisterTasksFromConfig(config); err != nil {
+		fmt.Println("Error registering tasks from config:", err)
+	}
 
 	// Register plugins
 	helloPlugin := hello.NewHelloPlugin()
 	if err := helloPlugin.RegisterTasks(taskManager); err != nil {
-		println("Error registering HelloPlugin:", err.Error())
+		fmt.Println("Error registering HelloPlugin:", err)
 	}
 
-	rootCmd := cli.Initialize(taskManager)
 	if err := rootCmd.Execute(); err != nil {
-		println("Failed to run:", err.Error())
+		fmt.Println("Failed to run:", err)
 	}
 }

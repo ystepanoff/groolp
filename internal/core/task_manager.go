@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"log"
+	"os/exec"
 	"sync"
 )
 
@@ -12,6 +13,25 @@ type Task struct {
 	Description  string
 	Dependencies []string
 	Action       func() error
+}
+
+func NewTaskFromConfig(
+	name string,
+	description string,
+	dependencies []string,
+	actionCmd string,
+) *Task {
+	return &Task{
+		Name:         name,
+		Description:  description,
+		Dependencies: dependencies,
+		Action: func() error {
+			cmd := exec.Command("sh", "-c", actionCmd)
+			cmd.Stdout = nil
+			cmd.Stderr = nil
+			return cmd.Run()
+		},
+	}
 }
 
 // TaskManager manages registration and execution of tasks

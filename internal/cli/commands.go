@@ -35,10 +35,11 @@ var taskManager *core.TaskManager
 var (
 	watchPaths []string
 	watchTask  string
+	configPath string
 )
 
-// Initialize() initializes the CLI with a TaskManager instance.
-func Initialize(tm *core.TaskManager) *cobra.Command {
+// Init() initialises the CLI with a TaskManager instance.
+func Init(tm *core.TaskManager) *cobra.Command {
 	taskManager = tm
 	rootCmd := &cobra.Command{
 		Use:   "groolp",
@@ -94,7 +95,6 @@ func Initialize(tm *core.TaskManager) *cobra.Command {
 			w.Start()
 		},
 	}
-
 	watchCmd.Flags().StringSliceVarP(
 		&watchPaths,
 		"path", "p", []string{"."},
@@ -107,5 +107,10 @@ func Initialize(tm *core.TaskManager) *cobra.Command {
 	)
 
 	rootCmd.AddCommand(runCmd, listCmd, watchCmd)
+	rootCmd.PersistentFlags().StringVarP(
+		&configPath,
+		"config", "c", "tasks.yaml",
+		"Tasks config path",
+	)
 	return rootCmd
 }
