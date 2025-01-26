@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ystepanoff/groolp/internal/core"
-	"github.com/ystepanoff/groolp/internal/plugins"
+	"github.com/ystepanoff/groolp/plugins"
 )
 
 type HelloPlugin struct{}
