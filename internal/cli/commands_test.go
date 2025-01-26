@@ -14,7 +14,7 @@ func TestRunCommand(t *testing.T) {
 	tm := core.NewTaskManager()
 
 	executed := false
-	tm.Register(&core.Task{
+	_ = tm.Register(&core.Task{
 		Name:        "test-task",
 		Description: "A test task",
 		Action: func() error {
@@ -50,7 +50,7 @@ func TestListCommand(t *testing.T) {
 		tm := core.NewTaskManager()
 
 		for _, task := range test {
-			tm.Register(&core.Task{
+			_ = tm.Register(&core.Task{
 				Name:        task,
 				Description: task,
 			})
