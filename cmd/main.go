@@ -24,6 +24,7 @@ package main
 import (
 	"github.com/ystepanoff/groolp/internal/cli"
 	"github.com/ystepanoff/groolp/internal/core"
+	"github.com/ystepanoff/groolp/internal/plugins/hello"
 )
 
 func main() {
@@ -61,6 +62,12 @@ func main() {
 			return nil
 		},
 	})
+
+	// Register plugins
+	helloPlugin := hello.NewHelloPlugin()
+	if err := helloPlugin.RegisterTasks(taskManager); err != nil {
+		println("Error registering HelloPlugin:", err.Error())
+	}
 
 	rootCmd := cli.Initialize(taskManager)
 	rootCmd.Execute()
