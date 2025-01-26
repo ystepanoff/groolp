@@ -43,7 +43,7 @@ func Init(tm *core.TaskManager) *cobra.Command {
 	taskManager = tm
 	rootCmd := &cobra.Command{
 		Use:   "groolp",
-		Short: "groolp is a Gulp-like task runner built in Go (Groolp = Groovy Gulp)",
+		Short: "Groolp is a Gulp-like task runner built in Go (Groolp = Groovy Gulp)",
 	}
 
 	// Run Command
