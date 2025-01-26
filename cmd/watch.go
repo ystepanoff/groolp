@@ -22,28 +22,21 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/ystepanoff/groolp/internal/cli"
 )
 
 // watchCmd represents the watch command
 var watchCmd = &cobra.Command{
 	Use:   "watch",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Monitor file changes",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("watch called")
+		// TODO
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(watchCmd)
+	cli.RootCmd.AddCommand(watchCmd)
 
 	// Here you will define your flags and configuration settings.
 

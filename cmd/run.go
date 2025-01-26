@@ -25,25 +25,23 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/ystepanoff/groolp/internal/cli"
 )
 
 // runCmd represents the run command
 var runCmd = &cobra.Command{
-	Use:   "run",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "run [task]",
+	Short: "Run a specified task",
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("run called")
+		taskName := args[0]
+		fmt.Printf("Running task: %s\n", taskName)
+		// TODO: task execution logic
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(runCmd)
+	cli.RootCmd.AddCommand(runCmd)
 
 	// Here you will define your flags and configuration settings.
 
