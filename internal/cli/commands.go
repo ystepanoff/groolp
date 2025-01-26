@@ -22,9 +22,6 @@ THE SOFTWARE.
 package cli
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/spf13/cobra"
 	"github.com/ystepanoff/groolp/internal/core"
 	"github.com/ystepanoff/groolp/internal/watcher"
@@ -54,7 +51,7 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			taskName := args[0]
 			if err := taskManager.Run(taskName); err != nil {
-				log.Printf("Error running task '%s': %v\n", taskName, err)
+				rootCmd.Printf("Error running task '%s': %v\n", taskName, err)
 			}
 		},
 	}
@@ -65,9 +62,9 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		Short: "List all available tasks",
 		Run: func(cmd *cobra.Command, args []string) {
 			tasks := taskManager.ListTasks()
-			log.Println("Available Tasks:")
+			rootCmd.Println("Available tasks:")
 			for _, task := range tasks {
-				log.Printf("- %s: %s\n", task.Name, task.Description)
+				rootCmd.Printf("- %s: %s\n", task.Name, task.Description)
 			}
 		},
 	}
@@ -78,17 +75,17 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		Short: "Watch files for changes and trigger tasks",
 		Run: func(cmd *cobra.Command, args []string) {
 			if watchTask == "" {
-				fmt.Println("Specify a task to run on changes using --task")
+				rootCmd.Println("Specify a task to run on changes using --task")
 				return
 			}
 			if len(watchPaths) == 0 {
-				fmt.Println("Specify paths to watch using --path")
+				rootCmd.Println("Specify paths to watch using --path")
 				return
 			}
 
 			w, err := watcher.NewWatcher(tm, watchPaths, watchTask)
 			if err != nil {
-				log.Printf("Error initializing watcher: %v\n", err)
+				rootCmd.Printf("Error initializing watcher: %v\n", err)
 				return
 			}
 
