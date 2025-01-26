@@ -29,13 +29,35 @@ import (
 func main() {
 	taskManager := core.NewTaskManager()
 
-	// Register built-in tasks or plugins
-	// For now, we'll register a sample task
+	// Register sample built-in tasks or plugins
 	taskManager.Register(&core.Task{
-		Name:        "hello",
-		Description: "Prints Hello, World!",
+		Name:        "clean",
+		Description: "Clean the build directory",
 		Action: func() error {
-			println("Hello, World!")
+			println("Cleaning build directory...")
+			// Implement cleaning logic here
+			return nil
+		},
+	})
+
+	taskManager.Register(&core.Task{
+		Name:         "build",
+		Description:  "Build the project",
+		Dependencies: []string{"clean"},
+		Action: func() error {
+			println("Building the project...")
+			// Implement build logic here
+			return nil
+		},
+	})
+
+	taskManager.Register(&core.Task{
+		Name:         "deploy",
+		Description:  "Deploy the project",
+		Dependencies: []string{"build"},
+		Action: func() error {
+			println("Deploying the project...")
+			// Implement deployment logic here
 			return nil
 		},
 	})

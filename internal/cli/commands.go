@@ -23,12 +23,19 @@ package cli
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 	"github.com/ystepanoff/groolp/internal/core"
+	"github.com/ystepanoff/groolp/internal/watcher"
 )
 
 var taskManager *core.TaskManager
+
+var (
+	watchPaths []string
+	watchTask  string
+)
 
 // Initialize() initializes the CLI with a TaskManager instance.
 func Initialize(tm *core.TaskManager) *cobra.Command {
@@ -46,7 +53,7 @@ func Initialize(tm *core.TaskManager) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			taskName := args[0]
 			if err := taskManager.Run(taskName); err != nil {
-				fmt.Printf("Error running task '%s': %v\n", taskName, err)
+				log.Printf("Error running task '%s': %v\n", taskName, err)
 			}
 		},
 	}
@@ -57,9 +64,9 @@ func Initialize(tm *core.TaskManager) *cobra.Command {
 		Short: "List all available tasks",
 		Run: func(cmd *cobra.Command, args []string) {
 			tasks := taskManager.ListTasks()
-			fmt.Println("Available Tasks:")
+			log.Println("Available Tasks:")
 			for _, task := range tasks {
-				fmt.Printf("- %s: %s\n", task.Name, task.Description)
+				log.Printf("- %s: %s\n", task.Name, task.Description)
 			}
 		},
 	}
@@ -67,11 +74,37 @@ func Initialize(tm *core.TaskManager) *cobra.Command {
 	// Watch Command (Placeholder)
 	watchCmd := &cobra.Command{
 		Use:   "watch",
-		Short: "Watch files for changes and run tasks",
+		Short: "Watch files for changes and trigger tasks",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Watch functionality not implemented yet.")
+			if watchTask == "" {
+				fmt.Println("Specify a task to run on changes using --task")
+				return
+			}
+			if len(watchPaths) == 0 {
+				fmt.Println("Specify paths to watch using --path")
+				return
+			}
+
+			w, err := watcher.NewWatcher(tm, watchPaths, watchTask)
+			if err != nil {
+				log.Printf("Error initializing watcher: %v\n", err)
+				return
+			}
+
+			w.Start()
 		},
 	}
+
+	watchCmd.Flags().StringSliceVarP(
+		&watchPaths,
+		"path", "p", []string{"."},
+		"Paths to watch for changes",
+	)
+	watchCmd.Flags().StringVarP(
+		&watchTask,
+		"task", "t", "",
+		"Task to run on changes",
+	)
 
 	rootCmd.AddCommand(runCmd, listCmd, watchCmd)
 	return rootCmd
