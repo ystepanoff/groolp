@@ -41,30 +41,14 @@ func (tm *TaskManager) Register(task *Task) error {
 
 // Run() executes tasks and its dependencies
 func (tm *TaskManager) Run(taskName string) error {
-	return tm.run(taskName, nil)
-}
-
-func (tm *TaskManager) run(taskName string, visited map[string]bool) error {
-	tm.mu.Lock()
-	task, exists := tm.tasks[taskName]
-	tm.mu.Unlock()
-
-	if !exists {
-		return fmt.Errorf("task '%s' not found", taskName)
+	task, err := tm.retrieveAndCheck(taskName, nil)
+	if err != nil {
+		return err
 	}
-
-	if visited == nil {
-		visited = make(map[string]bool)
-	}
-
-	if visited[taskName] {
-		return fmt.Errorf("circular dependency detected on task '%s'", taskName)
-	}
-	visited[taskName] = true
 
 	// Make sure dependencies run first
 	for _, dep := range task.Dependencies {
-		if err := tm.run(dep, visited); err != nil {
+		if err := tm.Run(dep); err != nil {
 			return err
 		}
 	}
@@ -72,6 +56,39 @@ func (tm *TaskManager) run(taskName string, visited map[string]bool) error {
 	// Execute the task
 	log.Printf("Running task: %s\n", task.Name)
 	return task.Action()
+}
+
+func (tm *TaskManager) retrieveAndCheck(
+	taskName string,
+	visited map[string]bool,
+) (*Task, error) {
+	tm.mu.Lock()
+	task, exists := tm.tasks[taskName]
+	tm.mu.Unlock()
+
+	if !exists {
+		return nil, fmt.Errorf("task '%s' not found", taskName)
+	}
+
+	if visited == nil {
+		visited = make(map[string]bool)
+	}
+
+	if visited[taskName] {
+		return nil, fmt.Errorf(
+			"circular dependency detected on task '%s'",
+			taskName,
+		)
+	}
+	visited[taskName] = true
+
+	for _, dep := range task.Dependencies {
+		if _, err := tm.retrieveAndCheck(dep, visited); err != nil {
+			return nil, err
+		}
+	}
+
+	return task, nil
 }
 
 func (tm *TaskManager) ListTasks() []*Task {
