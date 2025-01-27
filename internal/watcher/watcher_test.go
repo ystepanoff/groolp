@@ -193,7 +193,7 @@ func TestWatcher_MultipleDebounceCycles(t *testing.T) {
 	}()
 
 	event1 := fsnotify.Event{
-		Name: "file1.txt",
+		Name: "testfile.txt",
 		Op:   fsnotify.Write,
 	}
 
