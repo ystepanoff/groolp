@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/ystepanoff/groolp/internal/core"
-	"github.com/ystepanoff/groolp/internal/watcher"
+	"github.com/ystepanoff/groolp/core"
+	"github.com/ystepanoff/groolp/watcher"
 )
 
 var taskManager *core.TaskManager

@@ -8,7 +8,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/stretchr/testify/mock"
-	"github.com/ystepanoff/groolp/internal/core"
+	"github.com/ystepanoff/groolp/core"
 )
 
 // MockWatcher implements AbstractWatcher for testing.

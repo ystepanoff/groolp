@@ -3,17 +3,12 @@ package hello
 import (
 	"fmt"
 
-	"github.com/ystepanoff/groolp/internal/core"
-	"github.com/ystepanoff/groolp/plugins"
+	"github.com/ystepanoff/groolp/core"
 )
 
 type HelloPlugin struct{}
 
-func NewHelloPlugin() plugins.Plugin {
-	return &HelloPlugin{}
-}
-
-func (p *HelloPlugin) RegisterTasks(tm *core.TaskManager) error {
+func (p *HelloPlugin) RegisterTasks(tm core.TaskManagerInterface) error {
 	task := &core.Task{
 		Name:        "hello",
 		Description: "Prints Hello from HelloPlugin",
@@ -24,3 +19,5 @@ func (p *HelloPlugin) RegisterTasks(tm *core.TaskManager) error {
 	}
 	return tm.Register(task)
 }
+
+var Plugin HelloPlugin

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ystepanoff/groolp/internal/core"
+	"github.com/ystepanoff/groolp/core"
 )
 
 func TestRunCommand(t *testing.T) {

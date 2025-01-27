@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/ystepanoff/groolp/internal/core"
+	"github.com/ystepanoff/groolp/core"
 )
 
 // Watcher manages file system events and triggers tasks

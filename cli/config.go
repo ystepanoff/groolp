@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/ystepanoff/groolp/internal/core"
+	"github.com/ystepanoff/groolp/core"
 )
 
 func InitConfig() (*core.Config, error) {
