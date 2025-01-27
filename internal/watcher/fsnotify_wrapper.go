@@ -2,15 +2,15 @@ package watcher
 
 import "github.com/fsnotify/fsnotify"
 
-// WatcherInterface defines the methods and channels used by Watcher.
-type AbstractWatcher interface {
+// WatcherInterface defines the methods and channels used by Watcher
+type WatcherInterface interface {
 	Add(name string) error
 	Close() error
 	Events() <-chan fsnotify.Event
 	Errors() <-chan error
 }
 
-// FSNotifyWrapper wraps fsnotify.Watcher to implement WatcherInterface.
+// FSNotifyWrapper wraps fsnotify.Watcher to implement WatcherInterface
 type FSNotifyWrapper struct {
 	*fsnotify.Watcher
 }

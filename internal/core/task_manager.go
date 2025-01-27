@@ -34,6 +34,13 @@ func NewTaskFromConfig(
 	}
 }
 
+// TaskManagerInterface defines the methods that TaskManager exposes
+type TaskManagerInterface interface {
+	Register(task *Task) error
+	Run(taskName string) error
+	ListTasks() []*Task
+}
+
 // TaskManager manages registration and execution of tasks
 type TaskManager struct {
 	tasks map[string]*Task

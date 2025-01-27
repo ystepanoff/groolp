@@ -8,22 +8,23 @@ import (
 	"github.com/ystepanoff/groolp/internal/core"
 )
 
+// Watcher manages file system events and triggers tasks
 type Watcher struct {
-	watcher          AbstractWatcher
-	taskManager      *core.TaskManager
+	watcher          WatcherInterface
+	taskManager      core.TaskManagerInterface
 	watchPaths       []string
 	taskName         string
 	debounceDuration time.Duration
 }
 
 func NewWatcher(
-	tm *core.TaskManager,
+	tm core.TaskManagerInterface,
 	paths []string,
 	taskName string,
 	debounceDuration time.Duration,
-	args ...AbstractWatcher,
+	args ...WatcherInterface,
 ) (*Watcher, error) {
-	var w AbstractWatcher
+	var w WatcherInterface
 	if len(args) > 0 {
 		w = args[0]
 	} else {
