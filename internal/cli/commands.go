@@ -22,6 +22,9 @@ THE SOFTWARE.
 package cli
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/spf13/cobra"
 	"github.com/ystepanoff/groolp/internal/core"
 	"github.com/ystepanoff/groolp/internal/watcher"
@@ -30,9 +33,10 @@ import (
 var taskManager *core.TaskManager
 
 var (
-	watchPaths []string
-	watchTask  string
-	configPath string
+	watchPaths            []string
+	watchTask             string
+	watchDebounceDuration int64
+	configPath            string
 )
 
 // Init() initialises the CLI with a TaskManager instance.
@@ -83,13 +87,27 @@ func Init(tm *core.TaskManager) *cobra.Command {
 				return
 			}
 
-			w, err := watcher.NewWatcher(tm, watchPaths, watchTask)
+			w, err := watcher.NewWatcher(
+				tm,
+				watchPaths,
+				watchTask,
+				time.Duration(watchDebounceDuration)*time.Millisecond,
+			)
 			if err != nil {
 				rootCmd.Printf("Error initializing watcher: %v\n", err)
 				return
 			}
 
 			w.Start()
+		},
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if watchDebounceDuration < 500 {
+				return fmt.Errorf(
+					"invalid value for --debounce: %d; minimum allowed is 500 milliseconds",
+					watchDebounceDuration,
+				)
+			}
+			return nil
 		},
 	}
 	watchCmd.Flags().StringSliceVarP(
@@ -101,6 +119,11 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		&watchTask,
 		"task", "t", "",
 		"Task to run on changes",
+	)
+	watchCmd.Flags().Int64VarP(
+		&watchDebounceDuration,
+		"debounce", "d", 500,
+		"Debounce duration in milliseconds (has to be at least 500)",
 	)
 
 	rootCmd.AddCommand(runCmd, listCmd, watchCmd)
