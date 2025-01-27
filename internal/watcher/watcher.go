@@ -9,7 +9,7 @@ import (
 )
 
 type Watcher struct {
-	watcher          *fsnotify.Watcher
+	watcher          AbstractWatcher
 	taskManager      *core.TaskManager
 	watchPaths       []string
 	taskName         string
@@ -21,10 +21,17 @@ func NewWatcher(
 	paths []string,
 	taskName string,
 	debounceDuration time.Duration,
+	args ...AbstractWatcher,
 ) (*Watcher, error) {
-	w, err := fsnotify.NewWatcher()
-	if err != nil {
-		return nil, err
+	var w AbstractWatcher
+	if len(args) > 0 {
+		w = args[0]
+	} else {
+		fw, err := fsnotify.NewWatcher()
+		if err != nil {
+			return nil, err
+		}
+		w = &FSNotifyWrapper{Watcher: fw}
 	}
 
 	for _, path := range paths {
@@ -51,7 +58,7 @@ func (w *Watcher) Start() {
 
 	for {
 		select {
-		case event, ok := <-w.watcher.Events:
+		case event, ok := <-w.watcher.Events():
 			if !ok {
 				return
 			}
@@ -85,7 +92,7 @@ func (w *Watcher) Start() {
 					err,
 				)
 			}
-		case err, ok := <-w.watcher.Errors:
+		case err, ok := <-w.watcher.Errors():
 			if !ok {
 				return
 			}
