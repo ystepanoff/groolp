@@ -11,3 +11,8 @@ type Plugin interface {
 	GetVersion() string
 	GetDescription() string
 }
+
+/*
+   Each plugin must provide an initialisation function that Groolp can invoke to register the plugin's tasks.
+   This is typically done using Go's init() function which runs automatically when the module is imported.
+*/
