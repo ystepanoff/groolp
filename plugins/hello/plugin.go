@@ -2,8 +2,10 @@ package hello
 
 import (
 	"fmt"
+	"plugin"
 
 	"github.com/ystepanoff/groolp/core"
+	"github.com/ystepanoff/groolp/plugins"
 )
 
 type HelloPlugin struct{}
@@ -20,4 +22,22 @@ func (p *HelloPlugin) RegisterTasks(tm core.TaskManagerInterface) error {
 	return tm.Register(task)
 }
 
-var Plugin HelloPlugin
+func (p *HelloPlugin) GetName() string {
+	return "HelloPlugin"
+}
+
+func (p *HelloPlugin) GetVersion() string {
+	return "1.0.0"
+}
+
+func (p *HelloPlugin) GetDescription() string {
+	return "A plugin that adds a sample task."
+}
+
+// init() registers the plugin with Groolp upon import
+func init() {
+	plugin := &HelloPlugin{}
+	if err := plugins.RegisterPlugin(plugin); err != nil {
+		fmt.Printf("Failed to register plugin %s: %v\n", plugin.GetName(), err)
+	}
+}
