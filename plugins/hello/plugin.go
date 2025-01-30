@@ -2,7 +2,6 @@ package hello
 
 import (
 	"fmt"
-	"plugin"
 
 	"github.com/ystepanoff/groolp/core"
 	"github.com/ystepanoff/groolp/plugins"
@@ -37,7 +36,7 @@ func (p *HelloPlugin) GetDescription() string {
 // init() registers the plugin with Groolp upon import
 func init() {
 	plugin := &HelloPlugin{}
-	if err := plugins.RegisterPlugin(plugin); err != nil {
+	if err := plugins.Registry.RegisterPlugin(plugin); err != nil {
 		fmt.Printf("Failed to register plugin %s: %v\n", plugin.GetName(), err)
 	}
 }
