@@ -23,10 +23,13 @@ package cli
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/ystepanoff/groolp/core"
+	"github.com/ystepanoff/groolp/plugins"
 	"github.com/ystepanoff/groolp/watcher"
 )
 
@@ -47,7 +50,7 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		Short: "Groolp is a Gulp-like task runner built in Go (Groolp = Groovy Gulp)",
 	}
 
-	// Run Command
+	// run command
 	runCmd := &cobra.Command{
 		Use:   "run [task]",
 		Short: "Run a specified task",
@@ -60,7 +63,7 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		},
 	}
 
-	// List Command
+	// list command
 	listCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all available tasks",
@@ -73,7 +76,7 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		},
 	}
 
-	// Watch Command (Placeholder)
+	// watch command
 	watchCmd := &cobra.Command{
 		Use:   "watch",
 		Short: "Watch files for changes and trigger tasks",
@@ -126,6 +129,43 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		"Debounce duration in milliseconds (has to be at least 500)",
 	)
 
+	// mod command
+	modCmd := &cobra.Command{
+		Use:   "mod",
+		Short: "Manage Groolp modules",
+	}
+
+	// mod get command
+	modGetCmd := &cobra.Command{
+		Use:   "get [module path]",
+		Short: "Get a Groolp module by its path",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			modulePath := args[0]
+			fmt.Printf("Fetching module: %s\n", modulePath)
+
+			// Run 'go get <module path>@latest'
+			cmdGet := exec.Command("go", "get", modulePath+"@latest")
+			cmdGet.Stdout = os.Stdout
+			cmdGet.Stderr = os.Stderr
+			if err := cmdGet.Run(); err != nil {
+				fmt.Printf("Failed to get module: %v\n", err)
+				return
+			}
+
+			// Load the module
+			if err := loadModule(modulePath, tm); err != nil {
+				fmt.Printf("Failed to load module: %v\n", err)
+				return
+			}
+
+			fmt.Printf(
+				"Module '%s' installed and loaded successfully.\n",
+				modulePath,
+			)
+		},
+	}
+
 	rootCmd.AddCommand(runCmd, listCmd, watchCmd)
 	rootCmd.PersistentFlags().StringVarP(
 		&configPath,
@@ -133,4 +173,8 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		"Tasks config path",
 	)
 	return rootCmd
+}
+
+func loadModule(modulePath string, tm core.TaskManagerInterface) error {
+	return nil
 }
