@@ -7,8 +7,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Config represents the structure of the tasks configuration file.
-type Config struct {
+// TasksConfig represents the structure of the tasks configuration file.
+type TasksConfig struct {
 	Tasks map[string]struct {
 		Description  string   `yaml:"description"`
 		Dependencies []string `yaml:"dependencies,omitempty"`
@@ -17,13 +17,13 @@ type Config struct {
 }
 
 // LoadConfig loads and parses the configuration file.
-func LoadConfig(filename string) (*Config, error) {
+func LoadConfig(filename string) (*TasksConfig, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	var config Config
+	var config TasksConfig
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func LoadConfig(filename string) (*Config, error) {
 }
 
 // RegisterTasksFromConfig registers tasks defined in the configuration file.
-func (tm *TaskManager) RegisterTasksFromConfig(config *Config) error {
+func (tm *TaskManager) RegisterTasksFromConfig(config *TasksConfig) error {
 	for name, taskData := range config.Tasks {
 		task := NewTaskFromConfig(
 			name,

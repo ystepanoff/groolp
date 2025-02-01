@@ -1,0 +1,6 @@
+# Sample tasks.yaml
+tasks:
+  # This is a sample YAML-based task definition
+  sample-yaml-task:
+    description: "A sample task from tasks.yaml"
+    action: "echo Hello from tasks.yaml!"

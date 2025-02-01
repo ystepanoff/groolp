@@ -23,16 +23,24 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/ystepanoff/groolp/cli"
 	"github.com/ystepanoff/groolp/core"
 )
 
+const groolpDir = ".groolp"
+
 func main() {
+	if err := cli.InitGroolpDirectory(groolpDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error initializing %s: %v\n", groolpDir, err)
+		os.Exit(1)
+	}
+
 	taskManager := core.NewTaskManager()
 	rootCmd := cli.Init(taskManager)
 
-	config, err := cli.InitConfig()
+	config, err := cli.InitConfig(groolpDir)
 	if err != nil {
 		fmt.Println("Error loading config file:", err)
 		return

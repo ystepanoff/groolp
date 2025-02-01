@@ -36,7 +36,6 @@ var (
 	watchPaths            []string
 	watchTask             string
 	watchDebounceDuration int64
-	configPath            string
 )
 
 // Init() initialises the CLI with a TaskManager instance.
@@ -127,10 +126,5 @@ func Init(tm *core.TaskManager) *cobra.Command {
 	)
 
 	rootCmd.AddCommand(runCmd, listCmd, watchCmd)
-	rootCmd.PersistentFlags().StringVarP(
-		&configPath,
-		"config", "c", "tasks.yaml",
-		"Tasks config path",
-	)
 	return rootCmd
 }
