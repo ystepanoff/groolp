@@ -27,7 +27,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ystepanoff/groolp/core"
-	"github.com/ystepanoff/groolp/plugins"
 	"github.com/ystepanoff/groolp/watcher"
 )
 
@@ -127,42 +126,7 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		"Debounce duration in milliseconds (has to be at least 500)",
 	)
 
-	// mod command
-	modCmd := &cobra.Command{
-		Use:   "mod",
-		Short: "Manage Groolp modules",
-	}
-
-	// mod get command
-	modGetCmd := &cobra.Command{
-		Use:   "get [plugin_path]",
-		Short: "Fetch and load a Groolp plugin",
-		Args:  cobra.ExactArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			pluginPath := args[0]
-			if err := plugins.InstallPlugin(pluginPath); err != nil {
-				fmt.Printf(
-					"Failed to install plugin '%s': %v\n",
-					pluginPath,
-					err,
-				)
-				return
-			}
-
-			// Once the module is installed, re-initialize plugins
-			// so that newly installed plugin(s) are recognized.
-			plugins.Registry.InitPlugins(tm)
-
-			fmt.Printf(
-				"Module '%s' installed and loaded successfully.\n",
-				pluginPath,
-			)
-		},
-	}
-
-	modCmd.AddCommand(modGetCmd)
-
-	rootCmd.AddCommand(runCmd, listCmd, watchCmd, modCmd)
+	rootCmd.AddCommand(runCmd, listCmd, watchCmd)
 	rootCmd.PersistentFlags().StringVarP(
 		&configPath,
 		"config", "c", "tasks.yaml",

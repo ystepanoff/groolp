@@ -26,7 +26,6 @@ import (
 
 	"github.com/ystepanoff/groolp/cli"
 	"github.com/ystepanoff/groolp/core"
-	"github.com/ystepanoff/groolp/plugins/hello"
 )
 
 func main() {
@@ -41,12 +40,6 @@ func main() {
 
 	if err := taskManager.RegisterTasksFromConfig(config); err != nil {
 		fmt.Println("Error registering tasks from config:", err)
-	}
-
-	// Register plugins
-	helloPlugin := &hello.HelloPlugin{}
-	if err := helloPlugin.RegisterTasks(taskManager); err != nil {
-		fmt.Println("Error registering HelloPlugin:", err)
 	}
 
 	if err := rootCmd.Execute(); err != nil {
