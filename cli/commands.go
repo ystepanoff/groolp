@@ -23,8 +23,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -137,44 +135,38 @@ func Init(tm *core.TaskManager) *cobra.Command {
 
 	// mod get command
 	modGetCmd := &cobra.Command{
-		Use:   "get [module path]",
-		Short: "Get a Groolp module by its path",
+		Use:   "get [plugin_path]",
+		Short: "Fetch and load a Groolp plugin",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			modulePath := args[0]
-			fmt.Printf("Fetching module: %s\n", modulePath)
-
-			// Run 'go get <module path>@latest'
-			cmdGet := exec.Command("go", "get", modulePath+"@latest")
-			cmdGet.Stdout = os.Stdout
-			cmdGet.Stderr = os.Stderr
-			if err := cmdGet.Run(); err != nil {
-				fmt.Printf("Failed to get module: %v\n", err)
+			pluginPath := args[0]
+			if err := plugins.InstallPlugin(pluginPath); err != nil {
+				fmt.Printf(
+					"Failed to install plugin '%s': %v\n",
+					pluginPath,
+					err,
+				)
 				return
 			}
 
-			// Load the module
-			if err := loadModule(modulePath, tm); err != nil {
-				fmt.Printf("Failed to load module: %v\n", err)
-				return
-			}
+			// Once the module is installed, re-initialize plugins
+			// so that newly installed plugin(s) are recognized.
+			plugins.Registry.InitPlugins(tm)
 
 			fmt.Printf(
 				"Module '%s' installed and loaded successfully.\n",
-				modulePath,
+				pluginPath,
 			)
 		},
 	}
 
-	rootCmd.AddCommand(runCmd, listCmd, watchCmd)
+	modCmd.AddCommand(modGetCmd)
+
+	rootCmd.AddCommand(runCmd, listCmd, watchCmd, modCmd)
 	rootCmd.PersistentFlags().StringVarP(
 		&configPath,
 		"config", "c", "tasks.yaml",
 		"Tasks config path",
 	)
 	return rootCmd
-}
-
-func loadModule(modulePath string, tm core.TaskManagerInterface) error {
-	return nil
 }

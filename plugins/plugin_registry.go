@@ -1,7 +1,9 @@
 package plugins
 
 import (
+	"bytes"
 	"fmt"
+	"os/exec"
 	"sync"
 
 	"github.com/ystepanoff/groolp/core"
@@ -52,4 +54,30 @@ func (pr *PluginRegistry) InitPlugins(tm core.TaskManagerInterface) {
 		}
 		fmt.Printf("Successfully initialised plugin: %s\n", plugin.GetName())
 	}
+}
+
+func InstallPlugin(pluginPath string) error {
+	fmt.Printf("Fetching plugin (Go module): %s\n", pluginPath)
+
+	cmdGet := exec.Command("go", "get", pluginPath+"@latest")
+	var out bytes.Buffer
+	cmdGet.Stdout = &out
+	cmdGet.Stderr = &out
+
+	if err := cmdGet.Run(); err != nil {
+		return fmt.Errorf("go get failed: %v\nOutput: %s", err, out.String())
+	}
+
+	cmdTidy := exec.Command("go", "mod", "tidy")
+	cmdTidy.Stdout = &out
+	cmdTidy.Stderr = &out
+	if err := cmdTidy.Run(); err != nil {
+		return fmt.Errorf(
+			"go mod tidy failed: %v\nOutput: %s",
+			err,
+			out.String(),
+		)
+	}
+
+	return nil
 }
