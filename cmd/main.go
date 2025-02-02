@@ -24,9 +24,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/ystepanoff/groolp/cli"
 	"github.com/ystepanoff/groolp/core"
+	"github.com/ystepanoff/groolp/scripts"
 )
 
 const groolpDir = ".groolp"
@@ -38,7 +40,6 @@ func main() {
 	}
 
 	taskManager := core.NewTaskManager()
-	rootCmd := cli.Init(taskManager)
 
 	config, err := cli.InitConfig(groolpDir)
 	if err != nil {
@@ -50,6 +51,12 @@ func main() {
 		fmt.Println("Error registering tasks from config:", err)
 	}
 
+	scriptsDir := filepath.Join(groolpDir, "scripts")
+	if err := scripts.LoadScripts(scriptsDir, taskManager); err != nil {
+		fmt.Printf("Error loading scripts at startup: %v\n", err)
+	}
+
+	rootCmd := cli.Init(taskManager)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println("Failed to run:", err)
 	}

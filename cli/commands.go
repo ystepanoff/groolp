@@ -27,6 +27,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ystepanoff/groolp/core"
+	"github.com/ystepanoff/groolp/scripts"
 	"github.com/ystepanoff/groolp/watcher"
 )
 
@@ -125,6 +126,27 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		"Debounce duration in milliseconds (has to be at least 500)",
 	)
 
-	rootCmd.AddCommand(runCmd, listCmd, watchCmd)
+	scriptCmd := &cobra.Command{
+		Use:   "script",
+		Short: "Manage Lua user scripts",
+	}
+
+	scriptInstallCmd := &cobra.Command{
+		Use:   "install [url]",
+		Short: "Install a Lua script",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			url := args[0]
+			scriptsDir := "./scripts"
+			if err := scripts.InstallScript(url, scriptsDir); err != nil {
+				fmt.Printf("Error installing script: %v\n", err)
+				return
+			}
+			fmt.Println("Script installed successfully!")
+		},
+	}
+	scriptCmd.AddCommand(scriptInstallCmd)
+
+	rootCmd.AddCommand(runCmd, listCmd, watchCmd, scriptCmd)
 	return rootCmd
 }
