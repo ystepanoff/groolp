@@ -37,10 +37,10 @@ func LoadScripts(scriptsDir string, tm *core.TaskManager) error {
 
 func loadScript(scriptPath string, tm *core.TaskManager) error {
 	L := lua.NewState()
-	defer L.Close()
 
 	// Provide only a minimal set of safe libraries
-	// sandboxLuaState(L)
+	sandboxLuaState(L)
+	engine := NewScriptEngine()
 
 	// Provide a function so user scripts can register tasks
 	L.SetGlobal("register_task", L.NewFunction(func(L *lua.LState) int {
@@ -48,25 +48,27 @@ func loadScript(scriptPath string, tm *core.TaskManager) error {
 		desc := L.CheckString(2)
 		fn := L.CheckFunction(3)
 
-		// Wrap the Lua function as a Go closure
-		taskAction := func() error {
-			// Attempt to call the Lua function
-			L.Push(fn)
-			if err := L.PCall(0, 0, nil); err != nil {
-				return fmt.Errorf("lua runtime error: %v", err)
-			}
-			return nil
-		}
-
-		if err := tm.Register(&core.Task{
+		task := &core.Task{
 			Name:        name,
 			Description: desc,
-			Action:      taskAction,
-		}); err != nil {
+			// Wrap the Lua function as a Go closure
+			Action: func() error {
+				// Attempt to call the Lua function
+				L.Push(fn)
+				if err := L.PCall(0, 0, nil); err != nil {
+					return fmt.Errorf("lua runtime error: %v", err)
+				}
+
+				return nil
+			},
+		}
+
+		if err := tm.Register(task); err != nil {
 			L.Push(lua.LString(err.Error()))
 			L.Error(lua.LString(err.Error()), 1)
 			return 0
 		}
+		engine.tasks = append(engine.tasks, task)
 
 		return 0
 	}))
@@ -77,4 +79,36 @@ func loadScript(scriptPath string, tm *core.TaskManager) error {
 
 	fmt.Printf("Loaded script: %s\n", scriptPath)
 	return nil
+}
+
+type luaLibrary struct {
+	Name string
+	Func lua.LGFunction
+}
+
+func sandboxLuaState(L *lua.LState) {
+	safeLibs := []luaLibrary{
+		{"_G", lua.OpenBase},
+		{"table", lua.OpenTable},
+		{"string", lua.OpenString},
+		{"math", lua.OpenMath},
+	}
+
+	for _, safeLib := range safeLibs {
+		L.Push(L.NewFunction(safeLib.Func))
+		L.Push(lua.LString(safeLib.Name))
+		L.Call(1, 0)
+	}
+
+	disabledFunctions := []string{
+		"dofile",
+		"loadfile",
+		"load",
+		"require",
+		"collectgarbage",
+	}
+
+	for _, foo := range disabledFunctions {
+		L.SetGlobal(foo, lua.LNil)
+	}
 }
