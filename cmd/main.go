@@ -46,7 +46,7 @@ func main() {
 		return
 	}
 
-	if err := taskManager.RegisterTasksFromConfig(config); err != nil {
+	if err := taskManager.RegisterFromConfig(config); err != nil {
 		fmt.Println("Error registering tasks from config:", err)
 	}
 

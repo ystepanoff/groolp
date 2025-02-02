@@ -119,7 +119,7 @@ func TestWatcher_Start(t *testing.T) {
 
 	mockTM.AssertNumberOfCalls(t, "Run", 3)
 
-	mockWatcher.errors <- errors.New("watcher error")
+	mockWatcher.errors <- errors.New("watcher error (expected)")
 
 	close(mockWatcher.events)
 	close(mockWatcher.errors)

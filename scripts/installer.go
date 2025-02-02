@@ -4,24 +4,33 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 // InstallScript() downloads a .lua file from the given URL and saves it to scriptsDir.
-func InstallScript(url, scriptsDir string) error {
-	if !strings.HasSuffix(url, ".lua") {
-		// require .lua extension
-		return fmt.Errorf("refusing to install non-.lua file: %s", url)
+func InstallScript(scriptUrl, scriptsDir string) error {
+	urlParsed, err := url.Parse(scriptUrl)
+	if err != nil {
+		return fmt.Errorf("could not parse url: %s", err)
+	}
+	urlPath, _ := url.QueryUnescape(urlParsed.EscapedPath())
+
+	fileName := filepath.Base(urlPath)
+	if fileName == "" || fileName == "." {
+		return fmt.Errorf("could not derive file name from url: %s", scriptUrl)
 	}
 
-	fileName := filepath.Base(url)
-	if fileName == "" {
-		return fmt.Errorf("could not derive filename from url: %s", url)
+	if !strings.HasSuffix(fileName, ".lua") {
+		return fmt.Errorf(
+			"refusing to install non-.lua file: %s",
+			scriptUrl,
+		)
 	}
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(scriptUrl)
 	if err != nil {
 		return fmt.Errorf("failed to download script: %w", err)
 	}
@@ -43,6 +52,6 @@ func InstallScript(url, scriptsDir string) error {
 		return fmt.Errorf("failed to write script data: %w", err)
 	}
 
-	fmt.Printf("Installed script: %s -> %s\n", url, localPath)
+	fmt.Printf("Installed script: %s -> %s\n", scriptUrl, localPath)
 	return nil
 }

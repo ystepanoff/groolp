@@ -32,7 +32,7 @@ func LoadConfig(filename string) (*TasksConfig, error) {
 }
 
 // RegisterTasksFromConfig registers tasks defined in the configuration file.
-func (tm *TaskManager) RegisterTasksFromConfig(config *TasksConfig) error {
+func (tm *TaskManager) RegisterFromConfig(config *TasksConfig) error {
 	for name, taskData := range config.Tasks {
 		task := NewTaskFromConfig(
 			name,
