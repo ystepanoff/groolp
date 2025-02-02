@@ -8,6 +8,7 @@ import (
 	"github.com/ystepanoff/groolp/core"
 )
 
+// InitGroolpDirectory() initialises ".groolp" directory if does not exist
 func InitGroolpDirectory(groolpDir string) error {
 	tasksConfig := filepath.Join(groolpDir, "tasks.yaml")
 	scriptsDir := filepath.Join(groolpDir, "scripts")
@@ -67,6 +68,7 @@ register_task(
 	return nil
 }
 
+// InitConfig() loading simple tasks from tasks config
 func InitConfig(groolpDir string) (*core.TasksConfig, error) {
 	tasksConfig := filepath.Join(groolpDir, "tasks.yaml")
 	config, err := core.LoadConfig(tasksConfig)
