@@ -27,7 +27,7 @@ func LoadScripts(scriptsDir string, tm *core.TaskManager) error {
 			continue
 		}
 		scriptPath := filepath.Join(scriptsDir, fi.Name())
-		if err := loadScript(scriptPath, tm); err != nil {
+		if err := loadScript(scriptPath, fi.Name(), tm); err != nil {
 			fmt.Printf("Error loading script %s: %v\n", scriptPath, err)
 		}
 	}
@@ -35,12 +35,12 @@ func LoadScripts(scriptsDir string, tm *core.TaskManager) error {
 	return nil
 }
 
-func loadScript(scriptPath string, tm *core.TaskManager) error {
+func loadScript(scriptPath, scriptName string, tm *core.TaskManager) error {
 	L := lua.NewState()
 
 	// Provide only a minimal set of safe libraries
 	sandboxLuaState(L)
-	engine := NewScriptEngine()
+	engine := NewScriptEngine(scriptName)
 
 	// Provide a function so user scripts can register tasks
 	L.SetGlobal("register_task", L.NewFunction(func(L *lua.LState) int {

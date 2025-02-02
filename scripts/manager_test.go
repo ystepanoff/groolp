@@ -10,8 +10,8 @@ import (
 func TestCloseAllStates(t *testing.T) {
 	scriptEngines = nil
 
-	e1 := NewScriptEngine()
-	e2 := NewScriptEngine()
+	e1 := NewScriptEngine("script1")
+	e2 := NewScriptEngine("script2")
 
 	CloseAllStates()
 

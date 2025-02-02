@@ -1,22 +1,22 @@
 package scripts
 
 import (
-	"fmt"
-
 	"github.com/ystepanoff/groolp/core"
 	lua "github.com/yuin/gopher-lua"
 )
 
 // ScriptEngine keeps info about each script’s Lua state and tasks
 type scriptEngine struct {
+	Name  string
 	L     *lua.LState
 	tasks []*core.Task
 }
 
 var scriptEngines []*scriptEngine
 
-func NewScriptEngine() *scriptEngine {
+func NewScriptEngine(name string) *scriptEngine {
 	engine := &scriptEngine{
+		Name:  name,
 		L:     lua.NewState(),
 		tasks: make([]*core.Task, 0),
 	}
@@ -28,7 +28,6 @@ func NewScriptEngine() *scriptEngine {
 func CloseAllStates() {
 	for _, eng := range scriptEngines {
 		if eng.L != nil {
-			fmt.Println("CLOSED ", eng)
 			eng.L.Close()
 			eng.L = nil
 		}

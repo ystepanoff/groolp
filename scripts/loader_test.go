@@ -150,18 +150,24 @@ func TestLoadScripts_InvalidLuaScript(t *testing.T) {
 		"LoadScripts doesn't bubble up the error globally, logs instead",
 	)
 
-	require.Len(
-		t,
-		scriptEngines[0].tasks,
-		0,
-		"no tasks from the invalid script",
-	)
-	require.Len(
-		t,
-		scriptEngines[1].tasks,
-		1,
-		"only one task from the valid script",
-	)
+	for _, engine := range scriptEngines {
+		switch engine.Name {
+		case "invalid.lua":
+			require.Len(
+				t,
+				scriptEngines[0].tasks,
+				1,
+				"no tasks from the invalid script",
+			)
+		case "valid.lua":
+			require.Len(
+				t,
+				scriptEngines[1].tasks,
+				0,
+				"only one task from the valid script",
+			)
+		}
+	}
 
 	require.Nil(
 		t,
