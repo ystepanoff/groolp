@@ -156,14 +156,14 @@ func TestLoadScripts_InvalidLuaScript(t *testing.T) {
 			require.Len(
 				t,
 				scriptEngines[0].tasks,
-				1,
+				0,
 				"no tasks from the invalid script",
 			)
 		case "valid.lua":
 			require.Len(
 				t,
 				scriptEngines[1].tasks,
-				0,
+				1,
 				"only one task from the valid script",
 			)
 		}
