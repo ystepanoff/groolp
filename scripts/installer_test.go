@@ -17,7 +17,10 @@ import (
 func TestInstallScript_RefusesNonLuaFile(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	err := scripts.InstallScript("https://example.com/script.txt", tmpDir)
+	err := scripts.LuaInstaller.InstallScript(
+		"https://example.com/script.txt",
+		tmpDir,
+	)
 	require.Error(t, err, "expected error for non-.lua file")
 	require.Contains(t, err.Error(), "refusing to install non-.lua file")
 }
@@ -25,7 +28,7 @@ func TestInstallScript_RefusesNonLuaFile(t *testing.T) {
 func TestInstallScript_EmptyFileName(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	err := scripts.InstallScript("https://example.com", tmpDir)
+	err := scripts.LuaInstaller.InstallScript("https://example.com", tmpDir)
 	require.Error(t, err, "expected error when filename cannot be derived")
 	require.Contains(t, err.Error(), "could not derive file name")
 }
@@ -33,7 +36,10 @@ func TestInstallScript_EmptyFileName(t *testing.T) {
 func TestInstallScript_HttpError(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	err := scripts.InstallScript("http://127.0.0.1:9999/failing.lua", tmpDir)
+	err := scripts.LuaInstaller.InstallScript(
+		"http://127.0.0.1:9999/failing.lua",
+		tmpDir,
+	)
 	require.Error(
 		t,
 		err,
@@ -54,7 +60,7 @@ func TestInstallScript_NonOkResponse(t *testing.T) {
 	defer ts.Close()
 
 	testURL := ts.URL + "/test.lua"
-	err := scripts.InstallScript(testURL, tmpDir)
+	err := scripts.LuaInstaller.InstallScript(testURL, tmpDir)
 	require.Error(t, err, "expected error due to non-OK response")
 	require.Contains(t, err.Error(), "failed to fetch script. status: 404")
 }
@@ -74,7 +80,7 @@ func TestInstallScript_Success(t *testing.T) {
 	defer ts.Close()
 
 	testURL := ts.URL + "/hello.lua"
-	err := scripts.InstallScript(testURL, tmpDir)
+	err := scripts.LuaInstaller.InstallScript(testURL, tmpDir)
 	require.NoError(t, err, "expected successful download")
 
 	filePath := filepath.Join(tmpDir, "hello.lua")
@@ -112,7 +118,7 @@ func TestInstallScript_FileWriteError(t *testing.T) {
 	err := os.Chmod(tmpDir, 0500)
 	require.NoError(t, err, "failed to chmod to read-only")
 
-	err = scripts.InstallScript(testURL, tmpDir)
+	err = scripts.LuaInstaller.InstallScript(testURL, tmpDir)
 	require.Error(
 		t,
 		err,

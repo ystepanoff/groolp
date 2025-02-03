@@ -117,11 +117,11 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			url := args[0]
 			scriptsDir := "./scripts"
-			if err := scripts.InstallScript(url, scriptsDir); err != nil {
-				fmt.Printf("Error installing script: %v\n", err)
+			if err := scripts.LuaInstaller.InstallScript(url, scriptsDir); err != nil {
+				rootCmd.Printf("Error installing script: %v\n", err)
 				return
 			}
-			fmt.Println("Script installed successfully!")
+			rootCmd.Println("Script installed successfully!")
 		},
 	}
 	scriptCmd.AddCommand(scriptInstallCmd)

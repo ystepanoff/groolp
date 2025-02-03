@@ -10,8 +10,16 @@ import (
 	"strings"
 )
 
+// InstallInterface
+type InstallerInterface interface {
+	InstallScript(scriptUrl, scriptDir string) error
+}
+
+// luaInstaller is responsible for Lua scripts installation
+type luaInstaller struct{}
+
 // InstallScript() downloads a .lua file from the given URL and saves it to scriptsDir.
-func InstallScript(scriptUrl, scriptsDir string) error {
+func (li *luaInstaller) InstallScript(scriptUrl, scriptsDir string) error {
 	urlParsed, err := url.Parse(scriptUrl)
 	if err != nil {
 		return fmt.Errorf("could not parse url: %s", err)
@@ -55,3 +63,5 @@ func InstallScript(scriptUrl, scriptsDir string) error {
 	fmt.Printf("Installed script: %s -> %s\n", scriptUrl, localPath)
 	return nil
 }
+
+var LuaInstaller InstallerInterface = &luaInstaller{}
