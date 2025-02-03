@@ -10,7 +10,7 @@ Thank you for considering contributing to Groolp! We welcome contributions of al
 2. **Clone your fork:**
 ```bash
 git clone https://github.com/your-username/groolp.git
-cd golp
+cd groolp
 ```
 
 3. **Create a new branch:**
