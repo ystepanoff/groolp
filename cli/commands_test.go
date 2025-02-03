@@ -299,11 +299,6 @@ func TestScriptInstallCommand_Error(t *testing.T) {
 }
 
 func TestScriptInstallCommand_NonLua(t *testing.T) {
-	origInstaller := scripts.LuaInstaller
-	defer func() { scripts.LuaInstaller = origInstaller }()
-
-	scripts.LuaInstaller = &MockInstaller{}
-
 	tm := core.NewTaskManager()
 	rootCmd := Init(tm)
 
