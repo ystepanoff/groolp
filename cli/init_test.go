@@ -62,10 +62,10 @@ func TestInitGroolpDirectory_Success(t *testing.T) {
 	require.NoError(t, err, "scripts directory should be created")
 	require.True(t, info.IsDir(), "scripts should be a directory")
 
-	sampleScript := filepath.Join(scriptsPath, "hello.lua")
+	sampleScript := filepath.Join(scriptsPath, "sample.lua")
 	info, err = os.Stat(sampleScript)
 	require.NoError(t, err, "sample script should exist in scripts directory")
-	require.False(t, info.IsDir(), "hello.lua should be a file")
+	require.False(t, info.IsDir(), "sample.lua should be a file")
 }
 
 func TestInitTasksConfig_Success(t *testing.T) {

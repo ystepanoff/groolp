@@ -12,7 +12,7 @@ import (
 func InitGroolpDirectory(groolpDir string) error {
 	tasksConfig := filepath.Join(groolpDir, "tasks.yaml")
 	scriptsDir := filepath.Join(groolpDir, "scripts")
-	sampleScript := filepath.Join(scriptsDir, "hello.lua")
+	sampleScript := filepath.Join(scriptsDir, "sample.lua")
 
 	fi, err := os.Stat(groolpDir)
 	if err == nil {

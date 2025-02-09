@@ -25,7 +25,7 @@ func TestRunCommand(t *testing.T) {
 		},
 	})
 
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 	rootCmd.SetArgs([]string{"run", "test-task"})
 
 	if err := rootCmd.Execute(); err != nil {
@@ -59,7 +59,7 @@ func TestListCommand(t *testing.T) {
 		}
 
 		buf := new(bytes.Buffer)
-		rootCmd := Init(tm)
+		rootCmd := Init(tm, ".groolp")
 		rootCmd.SetOut(buf)
 		rootCmd.SetArgs([]string{"list"})
 
@@ -102,7 +102,7 @@ func TestWatchCommand(t *testing.T) {
 	tm := core.NewTaskManager()
 
 	buf := new(bytes.Buffer)
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 	rootCmd.SetOut(buf)
 	rootCmd.SetArgs([]string{"watch"})
 
@@ -130,7 +130,7 @@ func (m *MockInstaller) InstallScript(url, scriptsDir string) error {
 
 func TestRunCommand_UnknownTask(t *testing.T) {
 	tm := core.NewTaskManager()
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 
 	rootCmd.SetArgs([]string{"run", "nonexistent-task"})
 
@@ -157,7 +157,7 @@ func TestRunCommand_TaskFailure(t *testing.T) {
 		},
 	})
 
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
 	rootCmd.SetArgs([]string{"run", "fail-task"})
@@ -174,7 +174,7 @@ func TestRunCommand_TaskFailure(t *testing.T) {
 
 func TestWatchCommand_NoPathSpecified(t *testing.T) {
 	tm := core.NewTaskManager()
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
@@ -192,7 +192,7 @@ func TestWatchCommand_NoPathSpecified(t *testing.T) {
 
 func TestWatchCommand_InvalidDebounce(t *testing.T) {
 	tm := core.NewTaskManager()
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
@@ -216,7 +216,7 @@ func TestWatchCommand_InvalidDebounce(t *testing.T) {
 
 func TestWatchCommand_Success(t *testing.T) {
 	tm := core.NewTaskManager()
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
@@ -246,7 +246,7 @@ func TestScriptInstallCommand_Success(t *testing.T) {
 	scripts.LuaInstaller = &MockInstaller{}
 
 	tm := core.NewTaskManager()
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
@@ -274,7 +274,7 @@ func TestScriptInstallCommand_Error(t *testing.T) {
 	}
 
 	tm := core.NewTaskManager()
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
@@ -300,7 +300,7 @@ func TestScriptInstallCommand_Error(t *testing.T) {
 
 func TestScriptInstallCommand_NonLua(t *testing.T) {
 	tm := core.NewTaskManager()
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
@@ -323,7 +323,7 @@ func TestScriptInstallCommand_NonLua(t *testing.T) {
 
 func TestWatchCommand_DebounceBoundary(t *testing.T) {
 	tm := core.NewTaskManager()
-	rootCmd := Init(tm)
+	rootCmd := Init(tm, ".groolp")
 
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)

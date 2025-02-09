@@ -35,7 +35,7 @@ func main() {
 		fmt.Printf("Error loading scripts at startup: %v\n", err)
 	}
 
-	rootCmd := cli.Init(taskManager)
+	rootCmd := cli.Init(taskManager, groolpDir)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println("Failed to run:", err)
 	}

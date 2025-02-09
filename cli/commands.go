@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -19,7 +20,7 @@ var (
 )
 
 // Init() initialises the CLI with a TaskManager instance.
-func Init(tm *core.TaskManager) *cobra.Command {
+func Init(tm *core.TaskManager, groolpDir string) *cobra.Command {
 	taskManager = tm
 	rootCmd := &cobra.Command{
 		Use:   "groolp",
@@ -116,7 +117,7 @@ func Init(tm *core.TaskManager) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			url := args[0]
-			scriptsDir := "./scripts"
+			scriptsDir := filepath.Join(groolpDir, "scripts")
 			if err := scripts.LuaInstaller.InstallScript(url, scriptsDir); err != nil {
 				rootCmd.Printf("Error installing script: %v\n", err)
 				return
