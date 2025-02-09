@@ -20,7 +20,7 @@ func main() {
 
 	taskManager := core.NewTaskManager()
 
-	config, err := cli.InitConfig(groolpDir)
+	config, err := cli.InitTasksConfig(groolpDir)
 	if err != nil {
 		fmt.Println("Error loading config file:", err)
 		return

@@ -68,13 +68,12 @@ register_task(
 	return nil
 }
 
-// InitConfig() loading simple tasks from tasks config
-func InitConfig(groolpDir string) (*core.TasksConfig, error) {
+// InitTasksConfig() loading simple tasks from tasks config
+func InitTasksConfig(groolpDir string) (*core.TasksConfig, error) {
 	tasksConfig := filepath.Join(groolpDir, "tasks.yaml")
 	config, err := core.LoadConfig(tasksConfig)
 	if err != nil {
 		return nil, fmt.Errorf("error loading tasks config: %v", err)
 	}
-
 	return config, nil
 }

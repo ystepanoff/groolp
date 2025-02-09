@@ -68,15 +68,19 @@ func TestInitGroolpDirectory_Success(t *testing.T) {
 	require.False(t, info.IsDir(), "hello.lua should be a file")
 }
 
-func TestInitConfig_Success(t *testing.T) {
+func TestInitTasksConfig_Success(t *testing.T) {
 	tmpDir := t.TempDir()
 	groolpDir := filepath.Join(tmpDir, ".groolp")
 
 	err := cli.InitGroolpDirectory(groolpDir)
 	require.NoError(t, err, "should successfully initialize .groolp dir")
 
-	config, err := cli.InitConfig(groolpDir)
-	require.NoError(t, err, "InitConfig should succeed after initialization")
+	config, err := cli.InitTasksConfig(groolpDir)
+	require.NoError(
+		t,
+		err,
+		"InitTasksConfig should succeed after initialization",
+	)
 	require.NotNil(t, config, "config should not be nil")
 
 	require.Contains(
@@ -87,23 +91,27 @@ func TestInitConfig_Success(t *testing.T) {
 	)
 }
 
-func TestInitConfig_NoSuchDir(t *testing.T) {
+func TestInitTasksConfig_NoSuchDir(t *testing.T) {
 	tmpDir := t.TempDir()
 	groolpDir := filepath.Join(tmpDir, ".groolp")
 
-	config, err := cli.InitConfig(groolpDir)
-	require.Error(t, err, "InitConfig should fail if tasks.yaml doesn't exist")
+	config, err := cli.InitTasksConfig(groolpDir)
+	require.Error(
+		t,
+		err,
+		"InitTasksConfig should fail if tasks.yaml doesn't exist",
+	)
 	require.Nil(t, config, "config should be nil on error")
 }
 
-func TestInitConfig_VerifySampleTaskDefinition(t *testing.T) {
+func TestInitTasksConfig_VerifySampleTaskDefinition(t *testing.T) {
 	tmpDir := t.TempDir()
 	groolpDir := filepath.Join(tmpDir, ".groolp")
 
 	err := cli.InitGroolpDirectory(groolpDir)
 	require.NoError(t, err)
 
-	config, err := cli.InitConfig(groolpDir)
+	config, err := cli.InitTasksConfig(groolpDir)
 	require.NoError(t, err)
 	require.NotNil(t, config)
 

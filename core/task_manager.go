@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"sync"
 )
@@ -27,8 +28,8 @@ func NewTaskFromConfig(
 		Dependencies: dependencies,
 		Action: func() error {
 			cmd := exec.Command("sh", "-c", actionCmd)
-			cmd.Stdout = nil
-			cmd.Stderr = nil
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
 			return cmd.Run()
 		},
 	}
