@@ -48,17 +48,25 @@ func loadScript(scriptPath, scriptName string, tm *core.TaskManager) error {
 		desc := L.CheckString(2)
 		fn := L.CheckFunction(3)
 
+		var deps []string
+		if L.GetTop() >= 4 {
+			tbl := L.CheckTable(4)
+			tbl.ForEach(func(key, value lua.LValue) {
+				if key.Type() == lua.LTNumber && value.Type() == lua.LTString {
+					deps = append(deps, value.String())
+				}
+			})
+		}
+
 		task := &core.Task{
-			Name:        name,
-			Description: desc,
-			// Wrap the Lua function as a Go closure
+			Name:         name,
+			Description:  desc,
+			Dependencies: deps,
 			Action: func() error {
-				// Attempt to call the Lua function
 				L.Push(fn)
 				if err := L.PCall(0, 0, nil); err != nil {
 					return fmt.Errorf("lua runtime error: %v", err)
 				}
-
 				return nil
 			},
 		}

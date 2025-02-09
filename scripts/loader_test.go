@@ -348,3 +348,65 @@ register_task("task-two", "Second", function() end)
 	require.Equal(t, "First", taskOne.Description)
 	require.Equal(t, "Second", taskTwo.Description)
 }
+
+func TestLoadScripts_TasksWithDependencies(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	scriptA := `
+register_task(
+  "clean",
+  "Clean up build directory",
+  function()
+    print("Cleaning...")
+  end
+)
+
+register_task(
+  "build",
+  "Build the project",
+  function()
+    print("Building after cleaning...")
+  end,
+  { "clean" }  -- depends on "clean"
+)
+
+register_task(
+  "deploy",
+  "Deploy the project",
+  function()
+    print("Deploying after build...")
+  end,
+  { "build" }  -- depends on "build"
+)
+`
+	scriptAPath := filepath.Join(tmpDir, "scriptA.lua")
+	err := os.WriteFile(scriptAPath, []byte(scriptA), 0644)
+	require.NoError(t, err)
+
+	tm := core.NewTaskManager()
+
+	err = LoadScripts(
+		tmpDir,
+		tm,
+	)
+	require.NoError(t, err)
+
+	cleanTask := getTask(tm, "clean")
+	require.Empty(t, cleanTask.Dependencies, "clean has no deps")
+
+	buildTask := getTask(tm, "build")
+	require.Equal(
+		t,
+		[]string{"clean"},
+		buildTask.Dependencies,
+		"build depends on clean",
+	)
+
+	deployTask := getTask(tm, "deploy")
+	require.Equal(
+		t,
+		[]string{"build"},
+		deployTask.Dependencies,
+		"deploy depends on build",
+	)
+}
