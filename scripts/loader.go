@@ -3,7 +3,9 @@ package scripts
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/ystepanoff/groolp/core"
@@ -119,4 +121,45 @@ func sandboxLuaState(L *lua.LState) {
 	for _, foo := range disabledFunctions {
 		L.SetGlobal(foo, lua.LNil)
 	}
+
+	L.SetGlobal("run_command", L.NewFunction(func(L *lua.LState) int {
+		cmdString := L.CheckString(1)
+
+		code, err := runCommand(cmdString)
+		if err != nil {
+			L.Push(lua.LNil)
+			L.Push(lua.LString(err.Error()))
+			return 2
+		}
+
+		L.Push(lua.LNumber(code))
+		L.Push(lua.LNil)
+		return 2
+	}))
+}
+
+func runCommand(cmdString string) (int, error) {
+	var cmd *exec.Cmd
+
+	if runtime.GOOS == "windows" {
+		// On Windows, use cmd.exe /c
+		cmd = exec.Command("cmd.exe", "/c", cmdString)
+	} else {
+		// On Unix-like, use sh -c
+		cmd = exec.Command("sh", "-c", cmdString)
+	}
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		// If it's an exit error, get the code
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			return exitErr.ExitCode(), nil
+		}
+		// some other error, e.g. command not found
+		return -1, err
+	}
+	return 0, nil
 }
