@@ -115,14 +115,15 @@ func TestInstallScript_FileWriteError(t *testing.T) {
 
 	testURL := ts.URL + "/test.lua"
 
-	err := os.Chmod(tmpDir, 0500)
-	require.NoError(t, err, "failed to chmod to read-only")
+	dirAsFile := filepath.Join(tmpDir, "test.lua")
+	err := os.Mkdir(dirAsFile, 0o755)
+	require.NoError(t, err, "failed to create directory named test.lua")
 
 	err = scripts.LuaInstaller.InstallScript(testURL, tmpDir)
 	require.Error(
 		t,
 		err,
-		"expected error due to inability to create file in read-only directory",
+		"expected error due to inability to create file, because test.lua is a directory",
 	)
 	require.Contains(t, err.Error(), "failed to create local file")
 }
