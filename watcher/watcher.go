@@ -78,10 +78,10 @@ func (w *Watcher) Start() {
 					}
 					debounceTimer = time.NewTimer(w.debounceDuration)
 					debounceC = make(chan bool, 1)
-					go func() {
-						<-debounceTimer.C
-						debounceC <- true
-					}()
+					go func(t *time.Timer, c chan bool) {
+						<-t.C
+						c <- true
+					}(debounceTimer, debounceC)
 					break
 				}
 			}
