@@ -4,9 +4,16 @@ import (
 	"sync"
 )
 
+// DataStore defines a global data store for the scripts to use
 type DataStore struct {
 	data map[string]interface{}
 	mu   sync.Mutex
+}
+
+func NewDataStore() *DataStore {
+	return &DataStore{
+		data: make(map[string]interface{}),
+	}
 }
 
 func (ds *DataStore) SetData(key string, val interface{}) {
