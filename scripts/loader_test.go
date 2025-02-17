@@ -410,3 +410,53 @@ register_task(
 		"deploy depends on build",
 	)
 }
+
+func TestLoadScript_NoDependencies(t *testing.T) {
+	tmpDir := t.TempDir()
+	scriptPath := filepath.Join(tmpDir, "nodeps.lua")
+	luaContent := `
+		register_task(
+			"task_no_deps",
+			"Task with no dependencies",
+			function()
+				print("Running task with no dependencies")
+			end
+		)
+	`
+	require.NoError(t, os.WriteFile(scriptPath, []byte(luaContent), 0644))
+
+	tm := core.NewTaskManager()
+
+	err := loadScript(scriptPath, "nodeps", tm)
+	require.NoError(t, err)
+
+	task := getTask(tm, "task_no_deps")
+	require.NotNil(t, task, "Expected 'task_no_deps' to be registered")
+
+	require.Empty(
+		t,
+		task.Dependencies,
+		"Expected no dependencies for 'task_no_deps'",
+	)
+}
+
+func TestLoadScript_DataBridging(t *testing.T) {
+	tmpDir := t.TempDir()
+	scriptPath := filepath.Join(tmpDir, "data_test.lua")
+	luaContent := `
+		-- This script sets a value in the global data store.
+		set_data("myKey", "myValue")
+	`
+	require.NoError(t, os.WriteFile(scriptPath, []byte(luaContent), 0644))
+
+	tm := core.NewTaskManager()
+
+	GlobalDataStore = NewDataStore()
+
+	err := loadScript(scriptPath, "data_test", tm)
+	require.NoError(t, err)
+
+	val, ok := GlobalDataStore.GetData("myKey")
+	require.True(t, ok, "Expected key 'myKey' to be set")
+	require.Equal(t, "myValue", val)
+}
