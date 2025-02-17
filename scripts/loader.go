@@ -12,6 +12,8 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
+var GlobalDataStore = NewDataStore()
+
 // LoadScripts() loads all *.lua scripts from scriptsDir in a sandboxed
 // Lua enviroment and registers tasks with the TaskManager.
 func LoadScripts(scriptsDir string, tm *core.TaskManager) error {
@@ -136,16 +138,54 @@ func sandboxLuaState(L *lua.LState) {
 		L.Push(lua.LNil)
 		return 2
 	}))
+
+	L.SetGlobal("set_data", L.NewFunction(func(L *lua.LState) int {
+		key := L.CheckString(1)
+		val := L.CheckAny(2)
+		switch v := val.(type) {
+		case lua.LString:
+			GlobalDataStore.SetData(key, string(v))
+		case lua.LNumber:
+			GlobalDataStore.SetData(key, float64(v))
+		case lua.LBool:
+			GlobalDataStore.SetData(key, bool(v))
+		default:
+			GlobalDataStore.SetData(key, v.String())
+		}
+		return 0
+	}))
+
+	L.SetGlobal("get_data", L.NewFunction(func(L *lua.LState) int {
+		key := L.CheckString(1)
+		val, ok := GlobalDataStore.GetData(key)
+		if !ok {
+			L.Push(lua.LNil)
+			return 1
+		}
+		switch v := val.(type) {
+		case string:
+			L.Push(lua.LString(v))
+		case float64:
+			L.Push(lua.LNumber(v))
+		case bool:
+			if v {
+				L.Push(lua.LTrue)
+			} else {
+				L.Push(lua.LFalse)
+			}
+		default:
+			L.Push(lua.LString(fmt.Sprintf("%v", v)))
+		}
+		return 1
+	}))
 }
 
 func runCommand(cmdString string) (int, error) {
 	var cmd *exec.Cmd
 
 	if runtime.GOOS == "windows" {
-		// On Windows, use cmd.exe /c
 		cmd = exec.Command("cmd.exe", "/c", cmdString)
 	} else {
-		// On Unix-like, use sh -c
 		cmd = exec.Command("sh", "-c", cmdString)
 	}
 
@@ -154,11 +194,9 @@ func runCommand(cmdString string) (int, error) {
 
 	err := cmd.Run()
 	if err != nil {
-		// If it's an exit error, get the code
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			return exitErr.ExitCode(), nil
 		}
-		// some other error, e.g. command not found
 		return -1, err
 	}
 	return 0, nil
