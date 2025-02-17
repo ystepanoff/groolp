@@ -1,6 +1,8 @@
 package scripts
 
 import (
+	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -437,6 +439,56 @@ func TestLoadScript_NoDependencies(t *testing.T) {
 		t,
 		task.Dependencies,
 		"Expected no dependencies for 'task_no_deps'",
+	)
+}
+
+func TestLoadScript_RunCommand(t *testing.T) {
+	tmpDir := t.TempDir()
+	scriptPath := filepath.Join(tmpDir, "echo.lua")
+	luaContent := `
+register_task(
+	"echo-task",
+	"Task that runs an echo command",
+	function()
+		local code, err = run_command("echo hello")
+		if err then
+			error("run_command error: " .. err)
+		else
+			print("Echo command returned", code)
+		end
+	end
+)
+`
+	err := os.WriteFile(scriptPath, []byte(luaContent), 0644)
+	require.NoError(t, err)
+	tm := core.NewTaskManager()
+	err = loadScript(scriptPath, "echo", tm)
+	require.NoError(t, err, "expected script to load without error")
+
+	task := getTask(tm, "echo-task")
+	require.NotNil(t, task, "expected 'echo-task' to be registered")
+
+	oldStdout := os.Stdout
+	r, w, err := os.Pipe()
+	require.NoError(t, err)
+	os.Stdout = w
+
+	err = task.Action()
+	require.NoError(t, err, "expected task to run without error")
+
+	w.Close()
+	os.Stdout = oldStdout
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, r)
+	require.NoError(t, err)
+	output := buf.String()
+
+	require.Contains(t, output, "hello", "expected output to contain 'hello'")
+	require.Contains(
+		t,
+		output,
+		"Echo command returned",
+		"expected output to contain the echo command message",
 	)
 }
 
