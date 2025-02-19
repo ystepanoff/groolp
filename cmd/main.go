@@ -30,6 +30,7 @@ func main() {
 		fmt.Println("Error registering tasks from config:", err)
 	}
 
+	scripts.InitDataStore(groolpDir)
 	scriptsDir := filepath.Join(groolpDir, "scripts")
 	if err := scripts.LoadScripts(scriptsDir, taskManager); err != nil {
 		fmt.Printf("Error loading scripts at startup: %v\n", err)

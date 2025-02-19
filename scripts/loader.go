@@ -12,7 +12,12 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-var GlobalDataStore = NewDataStore()
+var GlobalDataStore *DataStore
+
+// InitDataStore() creates a new global data store
+func InitDataStore(groolpDir string) {
+	GlobalDataStore = NewDataStore(groolpDir)
+}
 
 // LoadScripts() loads all *.lua scripts from scriptsDir in a sandboxed
 // Lua enviroment and registers tasks with the TaskManager.
