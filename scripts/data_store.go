@@ -16,16 +16,26 @@ type DataStore struct {
 
 	dataPath  string
 	persistCh chan struct{}
-	done      chan struct{}
+	doneCh    chan struct{}
 }
 
-func NewDataStore(groolpDir string) *DataStore {
+func NewDataStore(groolpDir string) (*DataStore, error) {
 	ds := &DataStore{
 		data:     make(map[string]interface{}),
 		dataPath: filepath.Join(groolpDir, "data.json"),
+
+		persistCh: make(chan struct{}, 1),
+		doneCh:    make(chan struct{}),
 	}
+
+	if _, err := os.Stat(ds.dataPath); err == nil {
+		if err := ds.load(); err != nil {
+			return nil, fmt.Errorf("failed to load persistent data: %w", err)
+		}
+	}
+
 	go ds.persistenseWorker()
-	return ds
+	return ds, nil
 }
 
 func (ds *DataStore) SetData(key string, val interface{}) {
@@ -41,7 +51,21 @@ func (ds *DataStore) GetData(key string) (interface{}, bool) {
 	return val, ok
 }
 
-func (ds *DataStore) Persist() error {
+func (ds *DataStore) load() error {
+	ds.mu.Lock()
+	defer ds.mu.Unlock()
+
+	f, err := os.Open(ds.dataPath)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer f.Close()
+
+	decoder := json.NewDecoder(f)
+	return decoder.Decode(&ds.data)
+}
+
+func (ds *DataStore) persist() error {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
 
@@ -74,12 +98,22 @@ func (ds *DataStore) persistenseWorker() {
 			ch := make(chan time.Time)
 			return ch
 		}():
-			if err := ds.Persist(); err != nil {
+			if err := ds.persist(); err != nil {
 				fmt.Printf("Error persisting data store: %v\n", err)
 			}
 			timer = nil
-		case <-ds.done:
+		case <-ds.doneCh:
+			if timer != nil {
+				timer.Stop()
+			}
+			if err := ds.persist(); err != nil {
+				fmt.Printf("Error persisting data on shutdown: %v\n", err)
+			}
 			return
 		}
 	}
+}
+
+func (ds *DataStore) Close() {
+	close(ds.doneCh)
 }

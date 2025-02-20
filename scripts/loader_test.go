@@ -503,7 +503,7 @@ func TestLoadScript_DataBridging(t *testing.T) {
 
 	tm := core.NewTaskManager()
 
-	GlobalDataStore = NewDataStore(tmpDir)
+	InitDataStore(tmpDir)
 
 	err := loadScript(scriptPath, "data_test", tm)
 	require.NoError(t, err)

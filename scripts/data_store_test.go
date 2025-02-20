@@ -11,7 +11,7 @@ import (
 func TestDataStore_SetGet(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	ds := scripts.NewDataStore(tmpDir)
+	ds, _ := scripts.NewDataStore(tmpDir)
 
 	ds.SetData("foo", "bar")
 	val, ok := ds.GetData("foo")
@@ -25,7 +25,7 @@ func TestDataStore_SetGet(t *testing.T) {
 func TestDataStore_Overwrite(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	ds := scripts.NewDataStore(tmpDir)
+	ds, _ := scripts.NewDataStore(tmpDir)
 	ds.SetData("version", "v1.0")
 	val, ok := ds.GetData("version")
 	assert.True(t, ok)
@@ -40,7 +40,7 @@ func TestDataStore_Overwrite(t *testing.T) {
 func TestDataStore_ConcurrentAccess(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	ds := scripts.NewDataStore(tmpDir)
+	ds, _ := scripts.NewDataStore(tmpDir)
 	const goroutines = 10
 	var wg sync.WaitGroup
 	wg.Add(goroutines)
