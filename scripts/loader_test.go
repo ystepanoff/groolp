@@ -503,12 +503,16 @@ func TestLoadScript_DataBridging(t *testing.T) {
 
 	tm := core.NewTaskManager()
 
-	InitDataStore(tmpDir)
+	ds, err := NewDataStore(tmpDir)
+	require.NoError(t, err)
+	GlobalDataStore = ds
 
-	err := loadScript(scriptPath, "data_test", tm)
+	err = loadScript(scriptPath, "data_test", tm)
 	require.NoError(t, err)
 
 	val, ok := GlobalDataStore.GetData("myKey")
 	require.True(t, ok, "Expected key 'myKey' to be set")
 	require.Equal(t, "myValue", val)
+
+	ds.Close()
 }

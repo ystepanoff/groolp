@@ -16,7 +16,9 @@ type DataStore struct {
 
 	dataPath  string
 	persistCh chan struct{}
-	doneCh    chan struct{}
+
+	doneCh chan struct{}
+	doneWG sync.WaitGroup
 }
 
 func NewDataStore(groolpDir string) (*DataStore, error) {
@@ -34,7 +36,11 @@ func NewDataStore(groolpDir string) (*DataStore, error) {
 		}
 	}
 
-	go ds.persistenseWorker()
+	ds.doneWG.Add(1)
+	go func() {
+		ds.persistenseWorker()
+		ds.doneWG.Done()
+	}()
 	return ds, nil
 }
 
@@ -42,6 +48,11 @@ func (ds *DataStore) SetData(key string, val interface{}) {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
 	ds.data[key] = val
+
+	select {
+	case ds.persistCh <- struct{}{}:
+	default:
+	}
 }
 
 func (ds *DataStore) GetData(key string) (interface{}, bool) {
@@ -85,19 +96,20 @@ func (ds *DataStore) persistenseWorker() {
 	var timer *time.Timer
 
 	for {
+		var timerCh <-chan time.Time
+		if timer != nil {
+			timerCh = timer.C
+		} else {
+			timerCh = nil
+		}
+
 		select {
 		case <-ds.persistCh:
 			if timer != nil {
 				timer.Stop()
 			}
 			timer = time.NewTimer(debounceDuration)
-		case <-func() <-chan time.Time {
-			if timer != nil {
-				return timer.C
-			}
-			ch := make(chan time.Time)
-			return ch
-		}():
+		case <-timerCh:
 			if err := ds.persist(); err != nil {
 				fmt.Printf("Error persisting data store: %v\n", err)
 			}
@@ -116,4 +128,5 @@ func (ds *DataStore) persistenseWorker() {
 
 func (ds *DataStore) Close() {
 	close(ds.doneCh)
+	ds.doneWG.Wait()
 }

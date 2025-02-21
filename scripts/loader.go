@@ -14,17 +14,6 @@ import (
 
 var GlobalDataStore *DataStore
 
-// InitDataStore() creates a new global data store
-func InitDataStore(groolpDir string) {
-	ds, err := NewDataStore(groolpDir)
-	if err != nil {
-		fmt.Printf("Error initializing data store: %v\n", err)
-		os.Exit(1)
-	}
-	defer ds.Close()
-	GlobalDataStore = ds
-}
-
 // LoadScripts() loads all *.lua scripts from scriptsDir in a sandboxed
 // Lua enviroment and registers tasks with the TaskManager.
 func LoadScripts(scriptsDir string, tm *core.TaskManager) error {

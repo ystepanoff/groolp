@@ -30,7 +30,13 @@ func main() {
 		fmt.Println("Error registering tasks from config:", err)
 	}
 
-	scripts.InitDataStore(groolpDir)
+	ds, err := scripts.NewDataStore(groolpDir)
+	if err != nil {
+		fmt.Printf("Error initializing data store: %v\n", err)
+		os.Exit(1)
+	}
+	scripts.GlobalDataStore = ds
+
 	scriptsDir := filepath.Join(groolpDir, "scripts")
 	if err := scripts.LoadScripts(scriptsDir, taskManager); err != nil {
 		fmt.Printf("Error loading scripts at startup: %v\n", err)
@@ -40,4 +46,6 @@ func main() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println("Failed to run:", err)
 	}
+
+	ds.Close()
 }
