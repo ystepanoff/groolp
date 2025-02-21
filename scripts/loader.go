@@ -182,19 +182,22 @@ func sandboxLuaState(L *lua.LState) {
 
 func runCommand(cmdString string) (int, error) {
 	var cmd *exec.Cmd
-
 	if runtime.GOOS == "windows" {
 		cmd = exec.Command("cmd.exe", "/c", cmdString)
 	} else {
 		cmd = exec.Command("sh", "-c", cmdString)
 	}
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
+	output, err := cmd.CombinedOutput()
+	os.Stdout.Write(output)
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
+			// If the exit code is 127 (command not found), return an error
+			if exitErr.ExitCode() == 127 {
+				return exitErr.ExitCode(), fmt.Errorf(
+					"command not found: %s",
+					string(output),
+				)
+			}
 			return exitErr.ExitCode(), nil
 		}
 		return -1, err

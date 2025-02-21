@@ -1,6 +1,8 @@
 package scripts
 
 import (
+	"sync"
+
 	"github.com/ystepanoff/groolp/core"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -12,7 +14,10 @@ type scriptEngine struct {
 	tasks []*core.Task
 }
 
-var scriptEngines []*scriptEngine
+var (
+	scriptEngines     []*scriptEngine
+	scriptEnginesLock sync.Mutex
+)
 
 func NewScriptEngine(name string) *scriptEngine {
 	engine := &scriptEngine{
@@ -20,12 +25,15 @@ func NewScriptEngine(name string) *scriptEngine {
 		L:     lua.NewState(),
 		tasks: make([]*core.Task, 0),
 	}
+	scriptEnginesLock.Lock()
 	scriptEngines = append(scriptEngines, engine)
+	scriptEnginesLock.Unlock()
 	return engine
 }
 
 // CloseAllStates() closes all Lua states (at program end)
 func CloseAllStates() {
+	scriptEnginesLock.Lock()
 	for _, eng := range scriptEngines {
 		if eng.L != nil {
 			eng.L.Close()
@@ -33,4 +41,5 @@ func CloseAllStates() {
 		}
 	}
 	scriptEngines = nil
+	scriptEnginesLock.Unlock()
 }
