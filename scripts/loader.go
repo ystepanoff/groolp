@@ -191,12 +191,21 @@ func runCommand(cmdString string) (int, error) {
 	os.Stdout.Write(output)
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
-			// If the exit code is 127 (command not found), return an error
-			if exitErr.ExitCode() == 127 {
-				return exitErr.ExitCode(), fmt.Errorf(
-					"command not found: %s",
+			exitCode := exitErr.ExitCode()
+			if runtime.GOOS == "windows" {
+				if strings.Contains(
 					string(output),
-				)
+					"is not recognized as an internal or external command",
+				) {
+					return exitCode, fmt.Errorf(
+						"command not found: %s",
+						string(output),
+					)
+				}
+			} else {
+				if exitCode == 127 {
+					return exitCode, fmt.Errorf("command not found: %s", string(output))
+				}
 			}
 			return exitErr.ExitCode(), nil
 		}
