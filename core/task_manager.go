@@ -69,6 +69,18 @@ func (tm *TaskManager) Register(task *Task) error {
 
 // Run() executes tasks and its dependencies
 func (tm *TaskManager) Run(taskName string) error {
+	executed := make(map[string]bool)
+	return tm.runTask(taskName, executed)
+}
+
+func (tm *TaskManager) runTask(
+	taskName string,
+	executed map[string]bool,
+) error {
+	if executed[taskName] {
+		return nil
+	}
+
 	task, err := tm.retrieveAndCheck(taskName, nil)
 	if err != nil {
 		return err
@@ -76,14 +88,19 @@ func (tm *TaskManager) Run(taskName string) error {
 
 	// Make sure dependencies run first
 	for _, dep := range task.Dependencies {
-		if err := tm.Run(dep); err != nil {
+		if err := tm.runTask(dep, executed); err != nil {
 			return err
 		}
 	}
 
 	// Execute the task
 	log.Printf("Running task: %s\n", task.Name)
-	return task.Action()
+	if err := task.Action(); err != nil {
+		return err
+	}
+
+	executed[taskName] = true
+	return nil
 }
 
 func (tm *TaskManager) retrieveAndCheck(
