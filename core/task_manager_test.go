@@ -1,6 +1,7 @@
 package core
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -148,4 +149,66 @@ func TestRetrieveAndCheck(t *testing.T) {
 	_, err = tm.retrieveAndCheck("taskX", make(map[string]bool))
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "circular dependency detected")
+}
+
+func TestRunTask_ExecuteOnce(t *testing.T) {
+	tm := NewTaskManager()
+	var mu sync.Mutex
+	runCount := make(map[string]int)
+	inc := func(name string) {
+		mu.Lock()
+		runCount[name]++
+		mu.Unlock()
+	}
+
+	taskClean := &Task{
+		Name:         "clean",
+		Description:  "Clean task",
+		Dependencies: nil,
+		Action: func() error {
+			inc("clean")
+			return nil
+		},
+	}
+	taskBuild := &Task{
+		Name:         "build",
+		Description:  "Build task",
+		Dependencies: []string{"clean"},
+		Action: func() error {
+			inc("build")
+			return nil
+		},
+	}
+	taskTest := &Task{
+		Name:         "test",
+		Description:  "Test task",
+		Dependencies: []string{"build"},
+		Action: func() error {
+			inc("test")
+			return nil
+		},
+	}
+	taskDeploy := &Task{
+		Name:         "deploy",
+		Description:  "Deploy task",
+		Dependencies: []string{"build", "test"},
+		Action: func() error {
+			inc("deploy")
+			return nil
+		},
+	}
+
+	require.NoError(t, tm.Register(taskClean))
+	require.NoError(t, tm.Register(taskBuild))
+	require.NoError(t, tm.Register(taskTest))
+	require.NoError(t, tm.Register(taskDeploy))
+
+	require.NoError(t, tm.Run("deploy"))
+
+	mu.Lock()
+	defer mu.Unlock()
+	require.Equal(t, 1, runCount["clean"], "clean should run once")
+	require.Equal(t, 1, runCount["build"], "build should run once")
+	require.Equal(t, 1, runCount["test"], "test should run once")
+	require.Equal(t, 1, runCount["deploy"], "deploy should run once")
 }
