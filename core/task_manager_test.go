@@ -1,6 +1,10 @@
 package core
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
 
 func TestTaskRegistration(t *testing.T) {
 	tm := NewTaskManager()
@@ -90,31 +94,58 @@ func TestTaskDependencies(t *testing.T) {
 	}
 }
 
-func TestCircularDependencies(t *testing.T) {
+func TestRetrieveAndCheck(t *testing.T) {
 	tm := NewTaskManager()
 
 	taskA := &Task{
 		Name:         "taskA",
 		Description:  "Task A",
-		Dependencies: []string{"taskB"},
-		Action: func() error {
-			return nil
-		},
+		Dependencies: []string{"taskB", "taskC"},
+		Action:       func() error { return nil },
 	}
-
 	taskB := &Task{
 		Name:         "taskB",
 		Description:  "Task B",
-		Dependencies: []string{"taskA"},
-		Action: func() error {
-			return nil
-		},
+		Dependencies: []string{"taskC"},
+		Action:       func() error { return nil },
 	}
-
-	_ = tm.Register(taskA)
-	_ = tm.Register(taskB)
-
-	if err := tm.Run("taskA"); err == nil {
-		t.Errorf("Expected error for circular dependency, got nil")
+	taskC := &Task{
+		Name:         "taskC",
+		Description:  "Task C",
+		Dependencies: nil,
+		Action:       func() error { return nil },
 	}
+	require.NoError(t, tm.Register(taskA))
+	require.NoError(t, tm.Register(taskB))
+	require.NoError(t, tm.Register(taskC))
+
+	task, err := tm.retrieveAndCheck("taskA", make(map[string]bool))
+	require.NoError(t, err)
+	require.Equal(t, "taskA", task.Name)
+
+	taskX := &Task{
+		Name:         "taskX",
+		Description:  "Task X",
+		Dependencies: []string{"taskY"},
+		Action:       func() error { return nil },
+	}
+	taskY := &Task{
+		Name:         "taskY",
+		Description:  "Task Y",
+		Dependencies: []string{"taskZ"},
+		Action:       func() error { return nil },
+	}
+	taskZ := &Task{
+		Name:         "taskZ",
+		Description:  "Task Z",
+		Dependencies: []string{"taskX"},
+		Action:       func() error { return nil },
+	}
+	require.NoError(t, tm.Register(taskX))
+	require.NoError(t, tm.Register(taskY))
+	require.NoError(t, tm.Register(taskZ))
+
+	_, err = tm.retrieveAndCheck("taskX", make(map[string]bool))
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "circular dependency detected")
 }

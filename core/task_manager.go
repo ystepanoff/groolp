@@ -88,7 +88,7 @@ func (tm *TaskManager) Run(taskName string) error {
 
 func (tm *TaskManager) retrieveAndCheck(
 	taskName string,
-	visited map[string]bool,
+	recStack map[string]bool,
 ) (*Task, error) {
 	tm.mu.Lock()
 	task, exists := tm.tasks[taskName]
@@ -98,23 +98,26 @@ func (tm *TaskManager) retrieveAndCheck(
 		return nil, fmt.Errorf("task '%s' not found", taskName)
 	}
 
-	if visited == nil {
-		visited = make(map[string]bool)
+	if recStack == nil {
+		recStack = make(map[string]bool)
 	}
 
-	if visited[taskName] {
+	if recStack[taskName] {
 		return nil, fmt.Errorf(
 			"circular dependency detected on task '%s'",
 			taskName,
 		)
 	}
-	visited[taskName] = true
+
+	recStack[taskName] = true
 
 	for _, dep := range task.Dependencies {
-		if _, err := tm.retrieveAndCheck(dep, visited); err != nil {
+		if _, err := tm.retrieveAndCheck(dep, recStack); err != nil {
 			return nil, err
 		}
 	}
+
+	recStack[taskName] = false
 
 	return task, nil
 }
