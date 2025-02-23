@@ -19,7 +19,7 @@ end)
 -- Task: lint
 -- Runs golangci-lint
 register_task("lint", "Run golangci-lint", function()
-	set_data("lint_success", false)
+	set_data("linted", false)
 	local code, err = run_command("golangci-lint run --show-stats -v")
 	if err then
 		error("golangci-lint failed: " .. err)
@@ -28,7 +28,7 @@ register_task("lint", "Run golangci-lint", function()
 	else
 		print("golangci-lint passed successfully!")
 	end
-	set_data("lint_success", true)
+	set_data("linted", true)
 end, { "clean" })
 
 -- Task: build
