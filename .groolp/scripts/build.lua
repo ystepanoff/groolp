@@ -38,8 +38,8 @@ register_task("build", "Compile the project source code", function()
 	if not cleaned then
 		error("Build prerequisite not met: build directory not cleaned.")
 	end
-	local lint_success = get_data("lint_success")
-	if not lint_success then
+	local linted = get_data("linted")
+	if not linted then
 		error("Build preprequisite not met: linting was not successful.")
 	end
 
