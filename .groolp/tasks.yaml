@@ -1,0 +1,5 @@
+# Sample tasks.yaml
+tasks:
+  display-info:
+    description: "Displays project info"
+    action: "Groolp: a task automator"
