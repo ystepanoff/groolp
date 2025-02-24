@@ -2,4 +2,4 @@
 tasks:
   display-info:
     description: "Displays project info"
-    action: "Groolp: a task automator"
+    action: 'echo "Groolp: a task automator"'
