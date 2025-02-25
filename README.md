@@ -25,8 +25,19 @@ circular dependencies and prevents them.
 Groolp includes a file watcher that detects changes in your project and can automatically trigger 
 tasks. Perfect for continuous integration or live development workflows.
 - **Persistent data storage**
-
 Can be accessed from Lua tasks for get/set interactions and is automatically saved in a per-project `.groolp` directory.
+
+## Usage
+
+### Building from source
+
+Clone the repository and build Groolp:
+```bash
+git clone https://github.com/ystepanoff/groolp
+cd groolp
+go build -o groolp cmd/main.go
+```
+This produces a `groolp` binary that you can run from your project root. 
 
 ## Contributions to .groolp
 
