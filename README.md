@@ -39,6 +39,12 @@ go build -o groolp cmd/main.go
 ```
 This produces a `groolp` binary that you can run from your project root. 
 
+### Bootstrap your project
+
+On first run, Groolp automatically creates a .groolp directory in your current working directory if it doesn’t already exist. This directory includes:
+- Sample `tasks.yaml` file for defining simple tasks.
+- `scripts` subdirectory for your Lua scripts (containing a sample Lua script to get you started).
+
 ## Contributions to .groolp
 
 Thank you for considering contributing to Groolp! Contributions of all kinds are welcome.
