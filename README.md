@@ -44,6 +44,7 @@ This produces a `groolp` binary that you can run from your project root.
 On first run, Groolp automatically creates a .groolp directory in your current working directory if it doesn’t already exist. This directory includes:
 - Sample `tasks.yaml` file for defining simple tasks.
 - `scripts` subdirectory for your Lua scripts (containing a sample Lua script to get you started).
+- A sample Lua script to get you started.
 
 ## Contributions to .groolp
 
