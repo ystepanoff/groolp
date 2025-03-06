@@ -46,6 +46,8 @@ On first run, Groolp automatically creates a .groolp directory in your current w
 - `scripts` subdirectory for your Lua scripts (containing a sample Lua script to get you started).
 - A sample Lua script to get you started.
 
+More examples of Lua scripts can be found [here](https://github.com/ystepanoff/groolp-lua-scripts).
+
 ## Contributions to .groolp
 
 Thank you for considering contributing to Groolp! Contributions of all kinds are welcome.
