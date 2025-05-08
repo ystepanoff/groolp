@@ -74,7 +74,7 @@ func Init(tm *core.TaskManager, groolpDir string) *cobra.Command {
 				time.Duration(watchDebounceDuration)*time.Millisecond,
 			)
 			if err != nil {
-				rootCmd.Printf("Error initializing watcher: %v\n", err)
+				rootCmd.Printf("Error initialising watcher: %v\n", err)
 				return
 			}
 
