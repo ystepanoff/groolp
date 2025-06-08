@@ -1,0 +1,87 @@
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    main: ./cmd/main.go
+    binary: groolp
+    dir: .
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X github.com/ystepanoff/groolp/internal/version.Version={{.Version}}
+      - -X github.com/ystepanoff/groolp/internal/version.Commit={{.ShortCommit}}
+      - -X github.com/ystepanoff/groolp/internal/version.Date={{.Date}}
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+    builds_info:
+      - id: groolp
+        name: groolp
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+release:
+  github:
+    owner: ystepanoff
+    name: groolp
+  release_notes_template: |
+    ## Installation
+
+    ### Using pre-built binaries
+
+    Download the latest release from the [releases page](https://github.com/ystepanoff/groolp/releases) and add it to your PATH.
+
+    ### Building from source
+
+    ```bash
+    git clone https://github.com/ystepanoff/groolp
+    cd groolp
+    go build -o groolp cmd/main.go
+    ```
+
+checksum:
+  name_template: 'checksums.txt'
+
+brews:
+  - name: groolp
+    tap:
+      owner: ystepanoff
+      name: homebrew-tap
+    folder: Formula
+    homepage: "https://github.com/ystepanoff/groolp"
+    description: "A Gulp-like task runner written in Go"
+    license: "MIT"
+    install: |
+      bin.install "groolp"
+    test: |
+      system "#{bin}/groolp --version"
+    dependencies:
+      - go
