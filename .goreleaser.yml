@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -28,7 +30,7 @@ builds:
       - -X github.com/ystepanoff/groolp/internal/version.Date={{.Date}}
 
 archives:
-  - format: tar.gz
+  - formats: [ tar.gz ]
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
@@ -37,45 +39,22 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [ zip ]
     files:
       - LICENSE
       - README.md
-    builds_info:
-      - id: groolp
-        name: groolp
-
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
 
 release:
   github:
     owner: ystepanoff
     name: groolp
-  release_notes_template: |
-    ## Installation
-
-    ### Building from source
-
-    ```bash
-    git clone https://github.com/ystepanoff/groolp
-    cd groolp
-    go build -o groolp cmd/main.go
-    ```
-
-    ### Using pre-built binaries
-
-    Download the latest release from the [releases page](https://github.com/ystepanoff/groolp/releases) and add it to your PATH.
 
 checksum:
   name_template: 'checksums.txt'
 
 brews:
   - name: groolp
-    tap:
-      owner: ystepanoff
-      name: homebrew-tap
-    folder: Formula
+    url_template: https://github.com/ystepanoff/groolp/releases/download/{{ .Tag }}/{{ .ArtifactName }}
     homepage: "https://github.com/ystepanoff/groolp"
     description: "A Gulp-like task runner written in Go"
     license: "MIT"
