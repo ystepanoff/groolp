@@ -55,10 +55,6 @@ release:
   release_notes_template: |
     ## Installation
 
-    ### Using pre-built binaries
-
-    Download the latest release from the [releases page](https://github.com/ystepanoff/groolp/releases) and add it to your PATH.
-
     ### Building from source
 
     ```bash
@@ -66,6 +62,10 @@ release:
     cd groolp
     go build -o groolp cmd/main.go
     ```
+
+    ### Using pre-built binaries
+
+    Download the latest release from the [releases page](https://github.com/ystepanoff/groolp/releases) and add it to your PATH.
 
 checksum:
   name_template: 'checksums.txt'
